@@ -7,6 +7,7 @@ use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
 use Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface;
 use PostmanGeneratorBundle\Model\Request;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 class RequestGenerator implements GeneratorInterface
@@ -77,8 +78,8 @@ class RequestGenerator implements GeneratorInterface
                 }
 
                 $request = new Request();
+                $request->setId(Uuid::uuid4());
                 $request->setUrl($this->generateUrl($operation->getRoute()->getPath()));
-                $request->setId(md5($method.' '.$request->getUrl()));
                 $request->setMethod($method);
                 $request->setName($name);
 

@@ -4,6 +4,7 @@ namespace PostmanGeneratorBundle\Generator;
 
 use Dunglas\ApiBundle\Api\ResourceInterface;
 use PostmanGeneratorBundle\Model\Folder;
+use Ramsey\Uuid\Uuid;
 
 class FolderGenerator implements GeneratorInterface
 {
@@ -15,7 +16,7 @@ class FolderGenerator implements GeneratorInterface
     public function generate(ResourceInterface $resource = null)
     {
         $folder = new Folder();
-        $folder->setId(md5($resource->getEntityClass()));
+        $folder->setId(Uuid::uuid4());
         $folder->setName($resource->getShortName());
 
         return $folder;
