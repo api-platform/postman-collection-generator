@@ -5,7 +5,6 @@ namespace PostmanGeneratorBundle\Generator;
 use Doctrine\Common\Inflector\Inflector;
 use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class RequestGenerator
 {
@@ -52,7 +51,7 @@ class RequestGenerator
                 // @todo Careful with encoding: double quotes only because of \n
                 $request['headers'] = "Authorization: Bearer access-token-michiel\n";
 
-                if (in_array($method, [Request::METHOD_POST, Request::METHOD_PUT, Request::METHOD_PATCH])) {
+                if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
                     if (!isset($request['headers'])) {
                         $request['headers'] = '';
                     }
@@ -92,14 +91,14 @@ class RequestGenerator
     private function generateDefaultName($method, $name, $isCollection = true)
     {
         switch ($method) {
-            case Request::METHOD_POST:
+            case 'POST':
                 return sprintf('Create %s', Inflector::camelize($name));
-            case Request::METHOD_PUT:
-            case Request::METHOD_PATCH:
+            case 'PUT':
+            case 'PATCH':
                 return sprintf('Update %s', Inflector::camelize($name));
-            case Request::METHOD_DELETE:
+            case 'DELETE':
                 return sprintf('Delete %s', Inflector::camelize($name));
-            case Request::METHOD_GET:
+            case 'GET':
                 if ($isCollection) {
                     return sprintf('Get %s list', Inflector::pluralize(Inflector::camelize($name)));
                 }

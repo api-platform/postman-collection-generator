@@ -6,6 +6,10 @@
 
     <services>
 
+        <service id="postman.command.collection_build" class="PostmanGeneratorBundle\Command\PostmanCollectionBuildCommand">
+            <tag name="console.command" />
+        </service>
+
         <service id="postman.registry.resource" class="PostmanGeneratorBundle\Registry\ResourceRegistry" />
 
         <service id="postman.generator.collection" class="PostmanGeneratorBundle\Generator\CollectionGenerator">

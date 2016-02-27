@@ -7,28 +7,76 @@ cache:
         - $HOME/.composer/cache
 
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - hhvm
+    - 5.3
+    - 5.4
+    - 5.5
+    - 5.6
+    - 7.0
+    - hhvm
 
 matrix:
-  include:
-    - php: 5.3
-      env: deps=low
+    fast_finish: true
+    include:
+        - php: 5.3
+            env: SYMFONY_VERSION=2.3.*
+            env: deps=low
+        - php: 5.3
+            env: SYMFONY_VERSION=2.8.*
+            env: deps=low
+        - php: 5.3
+            env: SYMFONY_VERSION=3.0.*
+            env: deps=low
+        - php: 5.4
+            env: SYMFONY_VERSION=2.3.*
+            env: deps=low
+        - php: 5.4
+            env: SYMFONY_VERSION=2.8.*
+            env: deps=low
+        - php: 5.4
+            env: SYMFONY_VERSION=3.0.*
+            env: deps=low
+        - php: 5.5
+            env: SYMFONY_VERSION=2.3.*
+        - php: 5.5
+            env: SYMFONY_VERSION=2.8.*
+        - php: 5.5
+            env: SYMFONY_VERSION=3.0.*
+        - php: 5.6
+            env: SYMFONY_VERSION=2.3.*
+        - php: 5.6
+            env: SYMFONY_VERSION=2.8.*
+        - php: 5.6
+            env: SYMFONY_VERSION=3.0.*
+        - php: 6.0
+            env: SYMFONY_VERSION=2.3.*
+        - php: 6.0
+            env: SYMFONY_VERSION=2.8.*
+        - php: 6.0
+            env: SYMFONY_VERSION=3.0.*
+        - php: 7.0
+            env: SYMFONY_VERSION=2.3.*
+        - php: 7.0
+            env: SYMFONY_VERSION=2.8.*
+        - php: 7.0
+            env: SYMFONY_VERSION=3.0.*
+        - php: hhvm
+            env: SYMFONY_VERSION=2.3.*
+        - php: hhvm
+            env: SYMFONY_VERSION=2.8.*
+        - php: hhvm
+            env: SYMFONY_VERSION=3.0.*
 
 env:
-  global:
-    - deps=no
+    global:
+        - deps=no
 
 before_install:
-  - composer self-update
+    - composer self-update
 
 install:
-  - if [ "$deps" = "no" ]; then composer install; fi;
-  - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
+    - if [ "$deps" = "no" ]; then composer install; fi;
+    - if [ "$deps" = "low" ]; then composer --prefer-lowest --prefer-stable update; fi;
 
 script:
-  - ./vendor/bin/phpunit
+    - vendor/bin/phpunit
+    - vendor/bin/behat

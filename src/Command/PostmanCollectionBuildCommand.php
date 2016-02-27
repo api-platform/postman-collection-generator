@@ -3,16 +3,50 @@
 namespace PostmanGeneratorBundle\Command;
 
 use Doctrine\Common\Inflector\Inflector;
-use Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class PostmanCollectionBuildCommand extends ContainerAwareCommand
+class PostmanCollectionBuildCommand extends Command implements ContainerAwareInterface
 {
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
+     * @return ContainerInterface
+     *
+     * @throws \LogicException
+     */
+    protected function getContainer()
+    {
+        if (null === $this->container) {
+            $application = $this->getApplication();
+            if (null === $application) {
+                throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
+            }
+
+            $this->container = $application->getKernel()->getContainer();
+        }
+
+        return $this->container;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -46,17 +80,16 @@ EOT
      */
     public function interact(InputInterface $input, OutputInterface $output)
     {
-        $questionHelper = $this->getQuestionHelper();
-        $questionHelper->writeSection($output, 'Welcome to the Postman collection builder');
+        $this->writeSection($output, 'Welcome to the Postman collection builder');
 
         // Name
         $name = $input->getArgument('name');
         if (null !== $name) {
             $output->writeln(sprintf('Collection name: %s', $name));
         } else {
-            $question = new Question($questionHelper->getQuestion('Collection name', $name), $name);
+            $question = new Question('<info>Collection name</info>: ', $name);
             $question->setMaxAttempts(5);
-            $input->setArgument('name', $questionHelper->ask($input, $output, $question));
+            $input->setArgument('name', $this->getQuestionHelper()->ask($input, $output, $question));
         }
 
         // Url
@@ -64,9 +97,9 @@ EOT
         if (null !== $url) {
             $output->writeln(sprintf('Collection url: %s', $url));
         } else {
-            $question = new Question($questionHelper->getQuestion('Collection url', $url), $url);
+            $question = new Question('<info>Collection url</info>: ', $url);
             $question->setMaxAttempts(5);
-            $input->setArgument('url', $questionHelper->ask($input, $output, $question));
+            $input->setArgument('url', $this->getQuestionHelper()->ask($input, $output, $question));
         }
     }
 
@@ -85,19 +118,33 @@ EOT
         )));
 
         $text = sprintf('Postman collection has been successfully built in file %s.', $filename);
-        $this->getQuestionHelper()->writeSection($output, $text);
+        $this->writeSection($output, $text);
     }
 
     /**
      * @return QuestionHelper
      */
-    protected function getQuestionHelper()
+    private function getQuestionHelper()
     {
         $question = $this->getHelperSet()->get('question');
-        if (!$question || get_class($question) !== 'Sensio\Bundle\GeneratorBundle\Command\Helper\QuestionHelper') {
+        if (!$question) {
             $this->getHelperSet()->set($question = new QuestionHelper());
         }
 
         return $question;
+    }
+
+    /**
+     * @param OutputInterface $output
+     * @param string          $text
+     * @param string          $style
+     */
+    public function writeSection(OutputInterface $output, $text, $style = 'bg=blue;fg=white')
+    {
+        $output->writeln(array(
+            '',
+            $this->getHelperSet()->get('formatter')->formatBlock($text, $style, true),
+            '',
+        ));
     }
 }
