@@ -13,7 +13,7 @@ class FolderNormalizer implements NormalizerInterface
      *
      * @param Folder $object
      */
-    public function normalize($object, $format = null, array $context = array())
+    public function normalize($object, $format = null, array $context = [])
     {
         $data = [];
         $reflectionClass = new \ReflectionClass($object);

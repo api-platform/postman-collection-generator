@@ -6,9 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
 use Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface;
-use PostmanGeneratorBundle\Model\Folder;
 use PostmanGeneratorBundle\Model\Request;
-use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 class RequestGenerator implements GeneratorInterface
@@ -22,11 +20,6 @@ class RequestGenerator implements GeneratorInterface
      * @var ClassMetadataFactoryInterface
      */
     private $classMetadataFactory;
-
-    /**
-     * @var PropertyAccessor
-     */
-    private $propertyAccessor;
 
     /**
      * @var NameConverterInterface
@@ -44,14 +37,8 @@ class RequestGenerator implements GeneratorInterface
     private $baseUrl;
 
     /**
-     * @var Folder
-     */
-    private $currentFolder;
-
-    /**
      * @param AuthenticationGenerator       $authenticationGenerator
      * @param ClassMetadataFactoryInterface $classMetadataFactory
-     * @param PropertyAccessor              $propertyAccessor
      * @param NameConverterInterface        $nameConverter
      * @param string                        $authentication
      * @param string                        $baseUrl
@@ -59,25 +46,15 @@ class RequestGenerator implements GeneratorInterface
     public function __construct(
         AuthenticationGenerator $authenticationGenerator,
         ClassMetadataFactoryInterface $classMetadataFactory,
-        PropertyAccessor $propertyAccessor,
         $baseUrl,
         $authentication = null,
         NameConverterInterface $nameConverter = null
     ) {
         $this->authenticationGenerator = $authenticationGenerator;
         $this->classMetadataFactory = $classMetadataFactory;
-        $this->propertyAccessor = $propertyAccessor;
         $this->nameConverter = $nameConverter;
         $this->authentication = $authentication;
         $this->baseUrl = $baseUrl;
-    }
-
-    /**
-     * @var Folder $folder
-     */
-    public function setCurrentFolder(Folder $folder)
-    {
-        $this->currentFolder = $folder;
     }
 
     /**
@@ -105,8 +82,6 @@ class RequestGenerator implements GeneratorInterface
                 $request->setMethod($method);
                 $request->setName($name);
 
-                // @todo Add tests
-
                 // Authentication
                 if (null !== $this->authentication) {
                     $this->authenticationGenerator->get($this->authentication)->generate($request);
@@ -118,7 +93,6 @@ class RequestGenerator implements GeneratorInterface
                     $request->setDataMode(Request::DATA_MODE_RAW);
 
                     $rawModeData = [];
-                    // @todo Externalize this process
                     $classMetadata = $this->classMetadataFactory->getMetadataFor(
                         $resource->getEntityClass(),
                         $resource->getNormalizationGroups(),
@@ -136,20 +110,13 @@ class RequestGenerator implements GeneratorInterface
                             $attributeName = $this->nameConverter->normalize($attributeName);
                         }
 
-                        // @todo Implement faker
                         $value = '';
 
                         // Association(s)
                         if (isset($attributeMetadata->getTypes()[0])) {
                             $type = $attributeMetadata->getTypes()[0];
 
-                            // @todo Implement faker
                             $value = $type->isCollection() ? [] : '';
-
-                            // @todo According to serialization groups, is it possible to build sub-association from main object ?
-//                            if ($subResource = $this->getResourceFromType($type)) {
-//                                $value = $this->normalizeRelation($attributeMetadata, $attributeValue, $subResource, $context);
-//                            }
                         }
 
                         $rawModeData[$attributeName] = $value;

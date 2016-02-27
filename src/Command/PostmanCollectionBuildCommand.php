@@ -88,10 +88,10 @@ EOT
      */
     public function writeSection(OutputInterface $output, $text, $style = 'bg=blue;fg=white')
     {
-        $output->writeln(array(
+        $output->writeln([
             '',
             $this->getHelperSet()->get('formatter')->formatBlock($text, $style, true),
             '',
-        ));
+        ]);
     }
 }

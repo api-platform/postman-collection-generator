@@ -13,13 +13,17 @@ class RequestNormalizer implements NormalizerInterface
      *
      * @param Request $object
      */
-    public function normalize($object, $format = null, array $context = array())
+    public function normalize($object, $format = null, array $context = [])
     {
         $data = [];
         $reflectionClass = new \ReflectionClass($object);
 
         foreach ($reflectionClass->getProperties() as $property) {
-            $method = $reflectionClass->getMethod('get'.Inflector::classify($property->getName()));
+            if ('fromCollection' !== $property->getName()) {
+                $method = $reflectionClass->getMethod('get'.Inflector::classify($property->getName()));
+            } else {
+                $method = $reflectionClass->getMethod('is'.Inflector::classify($property->getName()));
+            }
             if ('folder' === $property->getName()) {
                 $data[$property->getName()] = $method->invoke($object)->getId();
             } elseif ('collection' === $property->getName()) {
@@ -27,7 +31,7 @@ class RequestNormalizer implements NormalizerInterface
             } elseif ('headers' === $property->getName()) {
                 $data[$property->getName()] = '';
                 foreach ($method->invoke($object) as $key => $value) {
-                    $data[$property->getName()].= "$key: $value\n";
+                    $data[$property->getName()] .= "$key: $value\n";
                 }
             } elseif ('rawModeData' === $property->getName()) {
                 $rawModeData = json_encode($method->invoke($object));

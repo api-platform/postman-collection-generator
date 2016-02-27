@@ -90,7 +90,7 @@ class Request
     /**
      * @var bool
      */
-    private $isFromCollection = false;
+    private $fromCollection = false;
 
     /**
      * @var Request
@@ -371,19 +371,19 @@ class Request
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
-    public function getIsFromCollection()
+    public function isFromCollection()
     {
-        return $this->isFromCollection;
+        return $this->fromCollection;
     }
 
     /**
-     * @param boolean $isFromCollection
+     * @param bool $fromCollection
      */
-    public function setIsFromCollection($isFromCollection)
+    public function setFromCollection($fromCollection)
     {
-        $this->isFromCollection = $isFromCollection;
+        $this->fromCollection = $fromCollection;
     }
 
     /**
