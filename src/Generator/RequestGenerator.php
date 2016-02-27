@@ -5,13 +5,87 @@ namespace PostmanGeneratorBundle\Generator;
 use Doctrine\Common\Inflector\Inflector;
 use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
+use Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface;
+use PostmanGeneratorBundle\Model\Folder;
+use PostmanGeneratorBundle\Model\Request;
+use Symfony\Component\PropertyAccess\PropertyAccessor;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
-class RequestGenerator
+class RequestGenerator implements GeneratorInterface
 {
     /**
-     * {@inheritdoc}
+     * @var AuthenticationGenerator
      */
-    public function generate(ResourceInterface $resource, $baseUrl)
+    private $authenticationGenerator;
+
+    /**
+     * @var ClassMetadataFactoryInterface
+     */
+    private $classMetadataFactory;
+
+    /**
+     * @var PropertyAccessor
+     */
+    private $propertyAccessor;
+
+    /**
+     * @var NameConverterInterface
+     */
+    private $nameConverter;
+
+    /**
+     * @var string
+     */
+    private $authentication;
+
+    /**
+     * @var string
+     */
+    private $baseUrl;
+
+    /**
+     * @var Folder
+     */
+    private $currentFolder;
+
+    /**
+     * @param AuthenticationGenerator       $authenticationGenerator
+     * @param ClassMetadataFactoryInterface $classMetadataFactory
+     * @param PropertyAccessor              $propertyAccessor
+     * @param NameConverterInterface        $nameConverter
+     * @param string                        $authentication
+     * @param string                        $baseUrl
+     */
+    public function __construct(
+        AuthenticationGenerator $authenticationGenerator,
+        ClassMetadataFactoryInterface $classMetadataFactory,
+        PropertyAccessor $propertyAccessor,
+        $baseUrl,
+        $authentication = null,
+        NameConverterInterface $nameConverter = null
+    ) {
+        $this->authenticationGenerator = $authenticationGenerator;
+        $this->classMetadataFactory = $classMetadataFactory;
+        $this->propertyAccessor = $propertyAccessor;
+        $this->nameConverter = $nameConverter;
+        $this->authentication = $authentication;
+        $this->baseUrl = $baseUrl;
+    }
+
+    /**
+     * @var Folder $folder
+     */
+    public function setCurrentFolder(Folder $folder)
+    {
+        $this->currentFolder = $folder;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return Request[]
+     */
+    public function generate(ResourceInterface $resource = null)
     {
         /** @var OperationInterface[] $operations */
         $operations = array_merge($resource->getCollectionOperations(), $resource->getItemOperations());
@@ -25,42 +99,62 @@ class RequestGenerator
                     $name = $operation->getContext()['hydra:title'];
                 }
 
-                // Default data
-                $request = [
-                    'id' => md5(sprintf('%s %s', $method, $operation->getRoute()->getPath())),
-                    'url' => $this->generateUrl($baseUrl, $operation->getRoute()->getPath()),
-                    'method' => $method,
-                    'tests' => [], // @todo add tests
-                    'folder' => md5($resource->getEntityClass()),
-                    'name' => $name,
-                    'description' => '',
-                    'preRequestScript' => '',
-                    'pathVariables' => new \stdClass(),
-                    'data' => [],
-                    'dataMode' => 'params',
-                    'version' => 2,
-                    'currentHelper' => 'normal',
-                    'helperAttributes' => new \stdClass(),
-                    'time' => time(),
-//                    'isFromCollection' => true,
-//                    'collectionRequestId' => md5(sprintf('%s %s', $method, $operation->getRoute()->getPath())),
-                ];
+                $request = new Request();
+                $request->setUrl($this->generateUrl($operation->getRoute()->getPath()));
+                $request->setId(md5($method.' '.$request->getUrl()));
+                $request->setMethod($method);
+                $request->setName($name);
+
+                // @todo Add tests
 
                 // Authentication
-                // @todo How to manage request authentication ? (OAuth2, OAuth1, JWT, custom)
-                // @todo Careful with encoding: double quotes only because of \n
-                $request['headers'] = "Authorization: Bearer access-token-michiel\n";
+                if (null !== $this->authentication) {
+                    $this->authenticationGenerator->get($this->authentication)->generate($request);
+                }
 
+                // Manage request data & ContentType header
                 if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
-                    if (!isset($request['headers'])) {
-                        $request['headers'] = '';
+                    $request->addHeader('Content-Type', 'application/json');
+                    $request->setDataMode(Request::DATA_MODE_RAW);
+
+                    $rawModeData = [];
+                    // @todo Externalize this process
+                    $classMetadata = $this->classMetadataFactory->getMetadataFor(
+                        $resource->getEntityClass(),
+                        $resource->getNormalizationGroups(),
+                        $resource->getDenormalizationGroups(),
+                        $resource->getValidationGroups()
+                    );
+                    foreach ($classMetadata->getAttributes() as $attributeMetadata) {
+                        if ($attributeMetadata->isIdentifier() || !$attributeMetadata->isReadable()) {
+                            continue;
+                        }
+
+                        // Regular attribute
+                        $attributeName = $attributeMetadata->getName();
+                        if ($this->nameConverter) {
+                            $attributeName = $this->nameConverter->normalize($attributeName);
+                        }
+
+                        // @todo Implement faker
+                        $value = '';
+
+                        // Association(s)
+                        if (isset($attributeMetadata->getTypes()[0])) {
+                            $type = $attributeMetadata->getTypes()[0];
+
+                            // @todo Implement faker
+                            $value = $type->isCollection() ? [] : '';
+
+                            // @todo According to serialization groups, is it possible to build sub-association from main object ?
+//                            if ($subResource = $this->getResourceFromType($type)) {
+//                                $value = $this->normalizeRelation($attributeMetadata, $attributeValue, $subResource, $context);
+//                            }
+                        }
+
+                        $rawModeData[$attributeName] = $value;
                     }
-                    $request['headers'].= "Content-Type: application/json\n";
-                    $request['dataMode'] = 'raw';
-                    $request['rawModeData'] = [
-                        // @todo Generate data from entity (cf. $resource->getDenormalizationContext())
-                        'foo' => 'bar',
-                    ];
+                    $request->setRawModeData($rawModeData);
                 }
 
                 $requests[] = $request;
@@ -71,14 +165,13 @@ class RequestGenerator
     }
 
     /**
-     * @param string $baseUrl
      * @param string $url
      *
      * @return string
      */
-    private function generateUrl($baseUrl, $url)
+    private function generateUrl($url)
     {
-        return rtrim($baseUrl, '/').str_ireplace('{id}', 1, $url);
+        return rtrim($this->baseUrl, '/').str_ireplace('{id}', 1, $url);
     }
 
     /**

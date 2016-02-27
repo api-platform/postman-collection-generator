@@ -2,9 +2,11 @@
 
 namespace PostmanGeneratorBundle\Generator;
 
+use Dunglas\ApiBundle\Api\ResourceInterface;
+use PostmanGeneratorBundle\Model\Collection;
 use PostmanGeneratorBundle\Registry\ResourceRegistry;
 
-class CollectionGenerator
+class CollectionGenerator implements GeneratorInterface
 {
     /**
      * @var ResourceRegistry
@@ -22,54 +24,64 @@ class CollectionGenerator
     private $folderGenerator;
 
     /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var string
+     */
+    private $description;
+
+    /**
+     * @var bool
+     */
+    private $public = false;
+
+    /**
      * @param ResourceRegistry $resourceRegistry
      * @param RequestGenerator $requestGenerator
      * @param FolderGenerator  $folderGenerator
+     * @param string           $name
+     * @param string           $description
+     * @param bool             $public
      */
     public function __construct(
         ResourceRegistry $resourceRegistry,
         RequestGenerator $requestGenerator,
-        FolderGenerator $folderGenerator
+        FolderGenerator $folderGenerator,
+        $public,
+        $name = null,
+        $description = null
     ) {
         $this->resourceRegistry = $resourceRegistry;
         $this->requestGenerator = $requestGenerator;
         $this->folderGenerator = $folderGenerator;
+        $this->public = $public;
+        $this->name = $name;
+        $this->description = $description;
     }
 
     /**
-     * @param string $baseUrl
-     * @param string $name
-     * @param bool   $public
+     * {@inheritdoc}
      *
-     * @return array
+     * @return Collection
      */
-    public function generate($baseUrl, $name = null, $public = false)
+    public function generate(ResourceInterface $resource = null)
     {
-        $configuration = [
-            'id' => md5($name || time()),
-            'name' => $name,
-            'description' => '',
-            'order' => [],
-            'folders' => [],
-            'timestamp' => 0,
-            'owner' => 0,
-            'remoteLink' => '',
-            'public' => $public,
-            'requests' => [],
-        ];
+        $collection = new Collection();
+        $collection->setId(md5($this->name || time()));
+        $collection->setName($this->name);
+        $collection->setDescription($this->description);
+        $collection->setPublic($this->public);
 
         foreach ($this->resourceRegistry->getResources() as $resource) {
-            $configuration['requests'] = array_merge(
-                $configuration['requests'],
-                $this->requestGenerator->generate($resource, $baseUrl)
-            );
-            $configuration['folders'][] = $this->folderGenerator->generate($resource, $configuration['id']);
+            $folder = $this->folderGenerator->generate($resource);
+            $folder->setRequests($this->requestGenerator->generate($resource));
+
+            $collection->addFolder($folder);
         }
 
-        foreach ($configuration['requests'] as $id => $request) {
-            $configuration['requests'][$id]['collectionId'] = $configuration['id'];
-        }
-
-        return $configuration;
+        return $collection;
     }
 }

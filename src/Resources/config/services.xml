@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <service id="postman.command.collection_build" class="PostmanGeneratorBundle\Command\PostmanCollectionBuildCommand">
+            <argument type="service" id="postman.generator.collection" />
+            <argument type="service" id="serializer" />
+            <argument>%postman.name%</argument>
+            <argument>%kernel.root_dir%</argument>
+            <tag name="console.command" />
+        </service>
+
+        <service id="postman.registry.resource" class="PostmanGeneratorBundle\Registry\ResourceRegistry" />
+
+        <service id="postman.generator.collection" class="PostmanGeneratorBundle\Generator\CollectionGenerator">
+            <argument type="service" id="postman.registry.resource" />
+            <argument type="service" id="postman.generator.request" />
+            <argument type="service" id="postman.generator.folder" />
+            <argument>%postman.public%</argument>
+            <argument>%postman.name%</argument>
+            <argument>%postman.description%</argument>
+        </service>
+
+        <service id="postman.generator.folder" class="PostmanGeneratorBundle\Generator\FolderGenerator" />
+
+        <service id="postman.generator.request" class="PostmanGeneratorBundle\Generator\RequestGenerator">
+            <argument type="service" id="postman.generator.authentication" />
+            <argument type="service" id="api.mapping.class_metadata_factory" />
+            <argument type="service" id="property_accessor" />
+            <argument>%postman.baseUrl%</argument>
+            <argument>%postman.authentication%</argument>
+            <argument type="service" id="api.name_converter" on-invalid="ignore" />
+        </service>
+
+        <service id="postman.generator.authentication" class="PostmanGeneratorBundle\Generator\AuthenticationGenerator" />
+
+        <service id="postman.authenticator.oauth2" class="PostmanGeneratorBundle\Authenticator\OAuth2Authenticator">
+            <tag name="postman.authenticator" alias="oauth2" />
+        </service>
+
+        <service id="postman.authenticator.jwt" class="PostmanGeneratorBundle\Authenticator\JwtAuthenticator">
+            <tag name="postman.authenticator" alias="jwt" />
+        </service>
+
+        <service id="postman.normalizer.request" class="PostmanGeneratorBundle\Normalizer\RequestNormalizer" public="false">
+            <tag name="serializer.normalizer" />
+        </service>
+
+        <service id="postman.normalizer.folder" class="PostmanGeneratorBundle\Normalizer\FolderNormalizer" public="false">
+            <tag name="serializer.normalizer" />
+        </service>
+
+    </services>
+
+</container>

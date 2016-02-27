@@ -3,63 +3,55 @@
 namespace PostmanGeneratorBundle\Command;
 
 use Doctrine\Common\Inflector\Inflector;
+use PostmanGeneratorBundle\Generator\CollectionGenerator;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class PostmanCollectionBuildCommand extends Command implements ContainerAwareInterface
+class PostmanCollectionBuildCommand extends Command
 {
     /**
-     * @var ContainerInterface
+     * @var CollectionGenerator
      */
-    private $container;
+    private $collectionGenerator;
 
     /**
-     * @return ContainerInterface
-     *
-     * @throws \LogicException
+     * @var NormalizerInterface
      */
-    protected function getContainer()
-    {
-        if (null === $this->container) {
-            $application = $this->getApplication();
-            if (null === $application) {
-                throw new \LogicException('The container cannot be retrieved as the application instance is not yet set.');
-            }
-
-            $this->container = $application->getKernel()->getContainer();
-        }
-
-        return $this->container;
-    }
+    private $normalizer;
 
     /**
-     * {@inheritdoc}
+     * @var string
      */
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
+    private $name;
 
     /**
-     * {@inheritdoc}
+     * @var string
      */
-    protected function configure()
-    {
+    private $rootDir;
+
+    /**
+     * @param CollectionGenerator $collectionGenerator
+     * @param NormalizerInterface $normalizer
+     * @param string              $name
+     * @param string              $rootDir
+     */
+    public function __construct(
+        CollectionGenerator $collectionGenerator,
+        NormalizerInterface $normalizer,
+        $name,
+        $rootDir
+    ) {
+        parent::__construct('postman:collection:build');
+
+        $this->collectionGenerator = $collectionGenerator;
+        $this->normalizer = $normalizer;
+        $this->name = $name;
+        $this->rootDir = $rootDir;
+
         $this
-            ->setName('postman:collection:build')
             ->setDescription('Build Postman collection')
-            ->setDefinition([
-                new InputArgument('name', InputArgument::OPTIONAL, 'The collection name (e.g. "API Platform")'),
-                new InputArgument('url', InputArgument::OPTIONAL, 'The API url'),
-                new InputOption('public', null, InputOption::VALUE_NONE, 'Is collection public?'),
-            ])
             ->setHelp(<<<EOT
 The <info>postman:collection:build</info> command helps you generate a Postman
 collection according to your project configuration. Provide the collection name
@@ -69,7 +61,7 @@ as the first argument and the url as the second argument:
 
 If any of the options is missing, the command will ask for their values interactively.
 If you want to disable any user interaction, use <comment>--no-interaction</comment>,
-but don't forget to pass all needed arguments.
+but don't forget to pass all required arguments.
 EOT
             )
         ;
@@ -78,60 +70,15 @@ EOT
     /**
      * {@inheritdoc}
      */
-    public function interact(InputInterface $input, OutputInterface $output)
-    {
-        $this->writeSection($output, 'Welcome to the Postman collection builder');
-
-        // Name
-        $name = $input->getArgument('name');
-        if (null !== $name) {
-            $output->writeln(sprintf('Collection name: %s', $name));
-        } else {
-            $question = new Question('<info>Collection name</info>: ', $name);
-            $question->setMaxAttempts(5);
-            $input->setArgument('name', $this->getQuestionHelper()->ask($input, $output, $question));
-        }
-
-        // Url
-        $url = $input->getArgument('url');
-        if (null !== $url) {
-            $output->writeln(sprintf('Collection url: %s', $url));
-        } else {
-            $question = new Question('<info>Collection url</info>: ', $url);
-            $question->setMaxAttempts(5);
-            $input->setArgument('url', $this->getQuestionHelper()->ask($input, $output, $question));
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $filename = sprintf('%s.json', Inflector::camelize(strtolower($input->getArgument('name'))));
-        $filepath = $this->getContainer()->getParameter('kernel.root_dir').'/../'.$filename;
+        $filename = sprintf('%s.json', Inflector::camelize(strtolower($this->name)));
+        $filepath = $this->rootDir.'/../'.$filename;
 
-        file_put_contents($filepath, json_encode($this->getContainer()->get('postman.generator.collection')->generate(
-            $input->getArgument('url'),
-            $input->getArgument('name'),
-            $input->getOption('public')
-        )));
+        file_put_contents($filepath, json_encode($this->normalizer->normalize($this->collectionGenerator->generate(), 'json')));
 
         $text = sprintf('Postman collection has been successfully built in file %s.', $filename);
         $this->writeSection($output, $text);
-    }
-
-    /**
-     * @return QuestionHelper
-     */
-    private function getQuestionHelper()
-    {
-        $question = $this->getHelperSet()->get('question');
-        if (!$question) {
-            $this->getHelperSet()->set($question = new QuestionHelper());
-        }
-
-        return $question;
     }
 
     /**
