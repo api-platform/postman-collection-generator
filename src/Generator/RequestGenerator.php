@@ -70,16 +70,17 @@ class RequestGenerator implements GeneratorInterface
         $requests = [];
 
         foreach ($operations as $operation) {
-            foreach ($operation->getRoute()->getMethods() as $method) {
-                $isCollection = 'DunglasApiBundle:Resource:cget' === $operation->getRoute()->getDefault('_controller');
+            $route = $operation->getRoute();
+            foreach ($route->getMethods() as $method) {
+                $isCollection = 'DunglasApiBundle:Resource:cget' === $route->getDefault('_controller');
                 $name = $this->generateDefaultName($method, $resource->getShortName(), $isCollection);
                 if (isset($operation->getContext()['hydra:title'])) {
                     $name = $operation->getContext()['hydra:title'];
                 }
 
                 $request = new Request();
-                $request->setId(Uuid::uuid4());
-                $request->setUrl($this->generateUrl($operation->getRoute()->getPath()));
+                $request->setId((string)Uuid::uuid4());
+                $request->setUrl($this->generateUrl($route->getPath()));
                 $request->setMethod($method);
                 $request->setName($name);
 

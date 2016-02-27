@@ -16,7 +16,7 @@ class FolderGenerator implements GeneratorInterface
     public function generate(ResourceInterface $resource = null)
     {
         $folder = new Folder();
-        $folder->setId(Uuid::uuid4());
+        $folder->setId((string)Uuid::uuid4());
         $folder->setName($resource->getShortName());
 
         return $folder;

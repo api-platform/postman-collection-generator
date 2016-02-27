@@ -169,7 +169,7 @@ class Collection
     /**
      * @return bool
      */
-    public function getPublic()
+    public function isPublic()
     {
         return $this->public;
     }

@@ -32,12 +32,6 @@ matrix:
           env: SYMFONY_VERSION=2.8.*
         - php: 5.6
           env: SYMFONY_VERSION=3.0.*
-        - php: 6.0
-          env: SYMFONY_VERSION=2.3.*
-        - php: 6.0
-          env: SYMFONY_VERSION=2.8.*
-        - php: 6.0
-          env: SYMFONY_VERSION=3.0.*
         - php: 7.0
           env: SYMFONY_VERSION=2.3.*
         - php: 7.0
@@ -63,7 +57,7 @@ install:
 
 script:
     - vendor/bin/phpunit
-    - vendor/bin/behat
+#    - vendor/bin/behat
 
 after_success:
     - coveralls

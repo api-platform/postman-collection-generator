@@ -3,11 +3,7 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.6/phpunit.xsd"
          backupGlobals="false"
-         bootstrap="tests/Fixtures/app/bootstrap.php"
          colors="true">
-    <php>
-        <server name="KERNEL_DIR" value="tests/Fixtures/app/" />
-    </php>
 
     <testsuites>
         <testsuite name="PostmanGeneratorBundle tests suite">
@@ -22,6 +18,8 @@
                 <directory>tests</directory>
                 <directory>features</directory>
                 <directory>vendor</directory>
+                <directory>src/Resources</directory>
+                <directory>src/Model</directory>
             </exclude>
         </whitelist>
     </filter>
