@@ -31,11 +31,6 @@ class RequestGenerator implements GeneratorInterface
     private $authentication;
 
     /**
-     * @var string
-     */
-    private $baseUrl;
-
-    /**
      * @var Guesser
      */
     private $guesser;
@@ -51,12 +46,16 @@ class RequestGenerator implements GeneratorInterface
     private $requestParserFactory;
 
     /**
+     * @var AnnotationReader
+     */
+    private $annotationReader;
+
+    /**
      * @param ClassMetadataFactoryInterface $classMetadataFactory
      * @param AttributesLoader              $attributesLoader
      * @param AuthenticationGenerator       $authenticationGenerator
      * @param Guesser                       $guesser
      * @param RequestParserFactory          $requestParserFactory
-     * @param string                        $baseUrl
      * @param string                        $authentication
      */
     public function __construct(
@@ -65,7 +64,7 @@ class RequestGenerator implements GeneratorInterface
         AuthenticationGenerator $authenticationGenerator,
         Guesser $guesser,
         RequestParserFactory $requestParserFactory,
-        $baseUrl,
+        AnnotationReader $annotationReader,
         $authentication = null
     ) {
         $this->classMetadataFactory = $classMetadataFactory;
@@ -73,7 +72,7 @@ class RequestGenerator implements GeneratorInterface
         $this->authenticationGenerator = $authenticationGenerator;
         $this->guesser = $guesser;
         $this->requestParserFactory = $requestParserFactory;
-        $this->baseUrl = $baseUrl;
+        $this->annotationReader = $annotationReader;
         $this->authentication = $authentication;
     }
 
@@ -87,7 +86,12 @@ class RequestGenerator implements GeneratorInterface
         /** @var OperationInterface[] $operations */
         $operations = array_merge($resource->getCollectionOperations(), $resource->getItemOperations());
         $requests = [];
-        $annotationReader = new AnnotationReader();
+        $classMetadata = $this->classMetadataFactory->getMetadataFor(
+            $resource->getEntityClass(),
+            $resource->getNormalizationGroups(),
+            $resource->getDenormalizationGroups(),
+            $resource->getValidationGroups()
+        );
 
         foreach ($operations as $operation) {
             $route = $operation->getRoute();
@@ -115,14 +119,8 @@ class RequestGenerator implements GeneratorInterface
                     $request->setDataMode(Request::DATA_MODE_RAW);
 
                     $rawModeData = [];
-                    $classMetadata = $this->classMetadataFactory->getMetadataFor(
-                        $resource->getEntityClass(),
-                        $resource->getNormalizationGroups(),
-                        $resource->getDenormalizationGroups(),
-                        $resource->getValidationGroups()
-                    );
                     foreach ($classMetadata->getAttributes() as $attributeMetadata) {
-                        $groups = $annotationReader->getPropertyAnnotation(
+                        $groups = $this->annotationReader->getPropertyAnnotation(
                             $classMetadata->getReflectionClass()->getProperty($attributeMetadata->getName()),
                             'Symfony\Component\Serializer\Annotation\Groups'
                         );

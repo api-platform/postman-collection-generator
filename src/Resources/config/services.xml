@@ -33,7 +33,7 @@
             <argument type="service" id="postman.generator.authentication" />
             <argument type="service" id="postman.guesser" />
             <argument type="service" id="postman.parser.factory" />
-            <argument>%postman.baseUrl%</argument>
+            <argument type="service" id="annotation_reader" />
             <argument>%postman.authentication%</argument>
         </service>
 
@@ -72,6 +72,7 @@
         <service id="postman.parser.factory" class="PostmanGeneratorBundle\RequestParser\RequestParserFactory" />
 
         <service id="postman.parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
+            <argument>%postman.baseUrl%</argument>
             <tag name="postman.request_parser" />
         </service>
 
