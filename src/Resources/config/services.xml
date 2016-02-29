@@ -28,11 +28,13 @@
         <service id="postman.generator.folder" class="PostmanGeneratorBundle\Generator\FolderGenerator" />
 
         <service id="postman.generator.request" class="PostmanGeneratorBundle\Generator\RequestGenerator">
-            <argument type="service" id="postman.generator.authentication" />
             <argument type="service" id="api.mapping.class_metadata_factory" />
+            <argument type="service" id="api.mapping.loaders.attributes" />
+            <argument type="service" id="postman.generator.authentication" />
+            <argument type="service" id="postman.guesser" />
+            <argument type="service" id="postman.parser.factory" />
             <argument>%postman.baseUrl%</argument>
             <argument>%postman.authentication%</argument>
-            <argument type="service" id="api.name_converter" on-invalid="ignore" />
         </service>
 
         <service id="postman.generator.authentication" class="PostmanGeneratorBundle\Generator\AuthenticationGenerator" />
@@ -51,6 +53,26 @@
 
         <service id="postman.normalizer.folder" class="PostmanGeneratorBundle\Normalizer\FolderNormalizer" public="false">
             <tag name="serializer.normalizer" />
+        </service>
+
+        <service id="postman.faker.factory" class="Faker\Factory" />
+
+        <service id="postman.faker" class="Faker\Generator">
+            <factory service="postman.faker.factory" method="create" />
+            <argument>%postman.defaultlocale%</argument>
+        </service>
+
+        <service id="postman.guesser" class="PostmanGeneratorBundle\Faker\Guesser\Guesser">
+            <argument type="service" id="postman.faker" />
+            <argument type="service" id="api.iri_converter" />
+            <argument type="service" id="api.resource_collection" />
+            <argument type="service" id="api.mapping.class_metadata_factory" />
+        </service>
+
+        <service id="postman.parser.factory" class="PostmanGeneratorBundle\RequestParser\RequestParserFactory" />
+
+        <service id="postman.parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
+            <tag name="postman.request_parser" />
         </service>
 
     </services>

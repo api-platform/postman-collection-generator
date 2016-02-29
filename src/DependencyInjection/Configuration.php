@@ -32,6 +32,7 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                 ->end()
                 ->scalarNode('description')->defaultNull()->end()
+                ->scalarNode('defaultLocale')->defaultValue('en_GB')->end()
                 ->enumNode('authentication')
                     ->defaultNull()
                     ->values(['oauth2', 'jwt'])

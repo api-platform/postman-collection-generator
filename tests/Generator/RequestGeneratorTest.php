@@ -21,11 +21,6 @@ class RequestGeneratorTest extends \PHPUnit_Framework_TestCase
     /**
      * @var ObjectProphecy
      */
-    private $nameConverterMock;
-
-    /**
-     * @var ObjectProphecy
-     */
     private $resourceMock;
 
     /**
@@ -35,7 +30,6 @@ class RequestGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $this->authenticationGeneratorMock = $this->prophesize('PostmanGeneratorBundle\Generator\AuthenticationGenerator');
         $this->classMetadataFactoryMock = $this->prophesize('Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface');
-        $this->nameConverterMock = $this->prophesize('Symfony\Component\Serializer\NameConverter\NameConverterInterface');
         $this->resourceMock = $this->prophesize('Dunglas\ApiBundle\Api\ResourceInterface');
         $operationMock = $this->prophesize('Dunglas\ApiBundle\Api\Operation\OperationInterface');
         $routeMock = $this->prophesize('Symfony\Component\Routing\Route');
@@ -102,14 +96,11 @@ class RequestGeneratorTest extends \PHPUnit_Framework_TestCase
             ->shouldBeCalledTimes(6);
         $authenticatorMock->generate(Argument::type('PostmanGeneratorBundle\Model\Request'))->shouldBeCalledTimes(6);
 
-        $this->nameConverterMock->normalize('description')->willReturn('description')->shouldBeCalledTimes(2);
-
         $generator = new RequestGenerator(
             $this->authenticationGeneratorMock->reveal(),
             $this->classMetadataFactoryMock->reveal(),
             'http://localhost',
-            'oauth2',
-            $this->nameConverterMock->reveal()
+            'oauth2'
         );
 
         $requests = $generator->generate($this->resourceMock->reveal());
@@ -151,7 +142,7 @@ class RequestGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Get current user profile', $requests[5]->getName());
     }
 
-    public function testGenerateWithoutAuthenticationAndNameConverter()
+    public function testGenerateWithoutAuthentication()
     {
         $this->authenticationGeneratorMock->get('oauth2')->shouldNotBeCalled();
 

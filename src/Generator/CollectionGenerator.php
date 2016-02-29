@@ -71,7 +71,7 @@ class CollectionGenerator implements GeneratorInterface
     public function generate(ResourceInterface $resource = null)
     {
         $collection = new Collection();
-        $collection->setId((string)Uuid::uuid4());
+        $collection->setId((string) Uuid::uuid4());
         $collection->setName($this->name);
         $collection->setDescription($this->description);
         $collection->setPublic($this->public);

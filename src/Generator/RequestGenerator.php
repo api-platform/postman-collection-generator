@@ -2,13 +2,16 @@
 
 namespace PostmanGeneratorBundle\Generator;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Inflector\Inflector;
 use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
 use Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface;
+use Dunglas\ApiBundle\Mapping\Loader\AttributesLoader;
+use PostmanGeneratorBundle\Faker\Guesser\Guesser;
 use PostmanGeneratorBundle\Model\Request;
+use PostmanGeneratorBundle\RequestParser\RequestParserFactory;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 
 class RequestGenerator implements GeneratorInterface
 {
@@ -23,11 +26,6 @@ class RequestGenerator implements GeneratorInterface
     private $classMetadataFactory;
 
     /**
-     * @var NameConverterInterface
-     */
-    private $nameConverter;
-
-    /**
      * @var string
      */
     private $authentication;
@@ -38,24 +36,45 @@ class RequestGenerator implements GeneratorInterface
     private $baseUrl;
 
     /**
-     * @param AuthenticationGenerator       $authenticationGenerator
+     * @var Guesser
+     */
+    private $guesser;
+
+    /**
+     * @var AttributesLoader
+     */
+    private $attributesLoader;
+
+    /**
+     * @var RequestParserFactory
+     */
+    private $requestParserFactory;
+
+    /**
      * @param ClassMetadataFactoryInterface $classMetadataFactory
-     * @param NameConverterInterface        $nameConverter
-     * @param string                        $authentication
+     * @param AttributesLoader              $attributesLoader
+     * @param AuthenticationGenerator       $authenticationGenerator
+     * @param Guesser                       $guesser
+     * @param RequestParserFactory          $requestParserFactory
      * @param string                        $baseUrl
+     * @param string                        $authentication
      */
     public function __construct(
-        AuthenticationGenerator $authenticationGenerator,
         ClassMetadataFactoryInterface $classMetadataFactory,
+        AttributesLoader $attributesLoader,
+        AuthenticationGenerator $authenticationGenerator,
+        Guesser $guesser,
+        RequestParserFactory $requestParserFactory,
         $baseUrl,
-        $authentication = null,
-        NameConverterInterface $nameConverter = null
+        $authentication = null
     ) {
-        $this->authenticationGenerator = $authenticationGenerator;
         $this->classMetadataFactory = $classMetadataFactory;
-        $this->nameConverter = $nameConverter;
-        $this->authentication = $authentication;
+        $this->attributesLoader = $attributesLoader;
+        $this->authenticationGenerator = $authenticationGenerator;
+        $this->guesser = $guesser;
+        $this->requestParserFactory = $requestParserFactory;
         $this->baseUrl = $baseUrl;
+        $this->authentication = $authentication;
     }
 
     /**
@@ -68,6 +87,7 @@ class RequestGenerator implements GeneratorInterface
         /** @var OperationInterface[] $operations */
         $operations = array_merge($resource->getCollectionOperations(), $resource->getItemOperations());
         $requests = [];
+        $annotationReader = new AnnotationReader();
 
         foreach ($operations as $operation) {
             $route = $operation->getRoute();
@@ -79,8 +99,8 @@ class RequestGenerator implements GeneratorInterface
                 }
 
                 $request = new Request();
-                $request->setId((string)Uuid::uuid4());
-                $request->setUrl($this->generateUrl($route->getPath()));
+                $request->setId((string) Uuid::uuid4());
+                $request->setUrl($route->getPath());
                 $request->setMethod($method);
                 $request->setName($name);
 
@@ -102,30 +122,24 @@ class RequestGenerator implements GeneratorInterface
                         $resource->getValidationGroups()
                     );
                     foreach ($classMetadata->getAttributes() as $attributeMetadata) {
-                        if ($attributeMetadata->isIdentifier() || !$attributeMetadata->isReadable()) {
+                        $groups = $annotationReader->getPropertyAnnotation(
+                            $classMetadata->getReflectionClass()->getProperty($attributeMetadata->getName()),
+                            'Symfony\Component\Serializer\Annotation\Groups'
+                        );
+                        if (
+                            $attributeMetadata->isIdentifier()
+                            || !$attributeMetadata->isReadable()
+                            || !count(array_intersect($groups ? $groups->getGroups() : [], $resource->getDenormalizationGroups() ?: []))
+                        ) {
                             continue;
                         }
 
-                        // Regular attribute
-                        $attributeName = $attributeMetadata->getName();
-                        if ($this->nameConverter) {
-                            $attributeName = $this->nameConverter->normalize($attributeName);
-                        }
-
-                        $value = '';
-
-                        // Association(s)
-                        if (isset($attributeMetadata->getTypes()[0])) {
-                            $type = $attributeMetadata->getTypes()[0];
-
-                            $value = $type->isCollection() ? [] : '';
-                        }
-
-                        $rawModeData[$attributeName] = $value;
+                        $rawModeData[$attributeMetadata->getName()] = $this->guesser->guess($attributeMetadata);
                     }
                     $request->setRawModeData($rawModeData);
                 }
 
+                $this->requestParserFactory->parse($request);
                 $requests[] = $request;
             }
         }

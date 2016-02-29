@@ -22,6 +22,7 @@ class PostmanGeneratorExtension extends Extension
         $container->setParameter('postman.description', $config['description']);
         $container->setParameter('postman.authentication', $config['authentication']);
         $container->setParameter('postman.public', $config['public']);
+        $container->setParameter('postman.defaultLocale', $config['defaultLocale']);
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
