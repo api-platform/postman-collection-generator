@@ -77,7 +77,7 @@
         </service>
 
         <service id="postman.parser.name" class="PostmanGeneratorBundle\RequestParser\NameRequestParser">
-            <tag name="postman.request_parser" />
+            <tag name="postman.request_parser" priority="1" />
         </service>
 
         <service id="postman.parser.data" class="PostmanGeneratorBundle\RequestParser\DataRequestParser">

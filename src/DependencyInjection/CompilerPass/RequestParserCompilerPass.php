@@ -15,8 +15,17 @@ class RequestParserCompilerPass implements CompilerPassInterface
     {
         $registryDefinition = $container->getDefinition('postman.parser.chain');
 
-        foreach ($container->findTaggedServiceIds('postman.request_parser') as $id => $tags) {
-            $registryDefinition->addMethodCall('addRequestParser', [new Reference($id)]);
+        $requestParsers = [];
+        foreach ($container->findTaggedServiceIds('postman.request_parser') as $serviceId => $tags) {
+            foreach ($tags as $attributes) {
+                $priority = isset($attributes['priority']) ? $attributes['priority'] : 0;
+                $requestParsers[$priority][] = new Reference($serviceId);
+            }
+        }
+        krsort($requestParsers);
+
+        foreach (call_user_func_array('array_merge', $requestParsers) as $requestParser) {
+            $registryDefinition->addMethodCall('addRequestParser', [$requestParser]);
         }
     }
 }

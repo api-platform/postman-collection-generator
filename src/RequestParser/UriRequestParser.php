@@ -6,7 +6,7 @@ use PostmanGeneratorBundle\Model\Request;
 
 class UriRequestParser implements RequestParserInterface
 {
-    const PATTERN = '/\/({id})/';
+    const PATTERN = '/\/({id})$/';
 
     /**
      * {@inheritdoc}

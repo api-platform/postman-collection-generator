@@ -25,10 +25,10 @@ class NameRequestParser implements RequestParserInterface
                 $request->setName(sprintf('Delete %s', $shortName));
                 break;
             case 'GET':
-                $request->setName(sprintf('Get %s', $shortName));
-                if (!preg_match('/\/({id})/', $request->getUrl())) {
-                    $request->setName($request->getName().' list');
+                if (!preg_match(UriRequestParser::PATTERN, $request->getUrl())) {
+                    $shortName = Inflector::pluralize($shortName).' list';
                 }
+                $request->setName(sprintf('Get %s', $shortName));
                 break;
         }
     }
