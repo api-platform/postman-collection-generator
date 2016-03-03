@@ -2,17 +2,17 @@
 
 namespace PostmanGeneratorBundle\Generator;
 
+use Dunglas\ApiBundle\Api\ResourceCollectionInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
 use PostmanGeneratorBundle\Model\Collection;
-use PostmanGeneratorBundle\Registry\ResourceRegistry;
 use Ramsey\Uuid\Uuid;
 
 class CollectionGenerator implements GeneratorInterface
 {
     /**
-     * @var ResourceRegistry
+     * @var ResourceCollectionInterface
      */
-    private $resourceRegistry;
+    private $resourceCollection;
 
     /**
      * @var RequestGenerator
@@ -40,22 +40,22 @@ class CollectionGenerator implements GeneratorInterface
     private $public = false;
 
     /**
-     * @param ResourceRegistry $resourceRegistry
-     * @param RequestGenerator $requestGenerator
-     * @param FolderGenerator  $folderGenerator
-     * @param string           $name
-     * @param string           $description
-     * @param bool             $public
+     * @param ResourceCollectionInterface $resourceCollection
+     * @param RequestGenerator            $requestGenerator
+     * @param FolderGenerator             $folderGenerator
+     * @param bool                        $public
+     * @param string                      $name
+     * @param string                      $description
      */
     public function __construct(
-        ResourceRegistry $resourceRegistry,
+        ResourceCollectionInterface $resourceCollection,
         RequestGenerator $requestGenerator,
         FolderGenerator $folderGenerator,
         $public,
         $name = null,
         $description = null
     ) {
-        $this->resourceRegistry = $resourceRegistry;
+        $this->resourceCollection = $resourceCollection;
         $this->requestGenerator = $requestGenerator;
         $this->folderGenerator = $folderGenerator;
         $this->public = $public;
@@ -76,7 +76,7 @@ class CollectionGenerator implements GeneratorInterface
         $collection->setDescription($this->description);
         $collection->setPublic($this->public);
 
-        foreach ($this->resourceRegistry->getResources() as $resource) {
+        foreach ($this->resourceCollection as $resource) {
             $folder = $this->folderGenerator->generate($resource);
             $folder->setRequests($this->requestGenerator->generate($resource));
 

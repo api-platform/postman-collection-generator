@@ -2,7 +2,7 @@
 
 namespace PostmanGeneratorBundle\Generator;
 
-use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Inflector\Inflector;
 use Dunglas\ApiBundle\Api\Operation\OperationInterface;
 use Dunglas\ApiBundle\Api\ResourceInterface;
@@ -47,9 +47,9 @@ class RequestGenerator implements GeneratorInterface
     private $requestParserFactory;
 
     /**
-     * @var AnnotationReader
+     * @var Reader
      */
-    private $annotationReader;
+    private $reader;
 
     /**
      * @param ClassMetadataFactoryInterface $classMetadataFactory
@@ -57,6 +57,7 @@ class RequestGenerator implements GeneratorInterface
      * @param AuthenticationGenerator       $authenticationGenerator
      * @param Guesser                       $guesser
      * @param RequestParserFactory          $requestParserFactory
+     * @param Reader                        $reader
      * @param string                        $authentication
      */
     public function __construct(
@@ -65,7 +66,7 @@ class RequestGenerator implements GeneratorInterface
         AuthenticationGenerator $authenticationGenerator,
         Guesser $guesser,
         RequestParserFactory $requestParserFactory,
-        AnnotationReader $annotationReader,
+        Reader $reader,
         $authentication = null
     ) {
         $this->classMetadataFactory = $classMetadataFactory;
@@ -73,7 +74,7 @@ class RequestGenerator implements GeneratorInterface
         $this->authenticationGenerator = $authenticationGenerator;
         $this->guesser = $guesser;
         $this->requestParserFactory = $requestParserFactory;
-        $this->annotationReader = $annotationReader;
+        $this->reader = $reader;
         $this->authentication = $authentication;
     }
 
@@ -121,7 +122,7 @@ class RequestGenerator implements GeneratorInterface
 
                     $rawModeData = [];
                     foreach ($classMetadata->getAttributes() as $attributeMetadata) {
-                        $groups = $this->annotationReader->getPropertyAnnotation(
+                        $groups = $this->reader->getPropertyAnnotation(
                             $classMetadata->getReflectionClass()->getProperty($attributeMetadata->getName()),
                             'Symfony\Component\Serializer\Annotation\Groups'
                         );

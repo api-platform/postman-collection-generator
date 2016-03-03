@@ -15,7 +15,6 @@ class PostmanGeneratorBundle extends Bundle
      */
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new ResourceCompilerPass());
         $container->addCompilerPass(new AuthenticatorCompilerPass());
         $container->addCompilerPass(new RequestParserCompilerPass());
     }
