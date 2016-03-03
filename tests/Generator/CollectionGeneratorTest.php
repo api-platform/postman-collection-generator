@@ -9,14 +9,19 @@ class CollectionGeneratorTest extends \PHPUnit_Framework_TestCase
 {
     public function testGenerate()
     {
-        $resourceRegistryMock = $this->prophesize('PostmanGeneratorBundle\Registry\ResourceRegistry');
+        $resourceCollectionMock = $this->prophesize('Dunglas\ApiBundle\Api\ResourceCollection');
         $requestGeneratorMock = $this->prophesize('PostmanGeneratorBundle\Generator\RequestGenerator');
         $folderGeneratorMock = $this->prophesize('PostmanGeneratorBundle\Generator\FolderGenerator');
         $resourceMock = $this->prophesize('Dunglas\ApiBundle\Api\ResourceInterface');
         $folderMock = $this->prophesize('PostmanGeneratorBundle\Model\Folder');
         $requestMock = $this->prophesize('PostmanGeneratorBundle\Model\Request');
+        $arrayIteratorMock = $this->prophesize('\ArrayIterator');
 
-        $resourceRegistryMock->getResources()->willReturn([$resourceMock->reveal()])->shouldBeCalledTimes(1);
+        $resourceCollectionMock->getIterator()->willReturn($arrayIteratorMock->reveal())->shouldBeCalledTimes(1);
+        $arrayIteratorMock->valid()->willReturn(true, false)->shouldBeCalledTimes(2);
+        $arrayIteratorMock->rewind()->shouldBeCalledTimes(1);
+        $arrayIteratorMock->current()->willReturn($resourceMock->reveal())->shouldBeCalledTimes(1);
+        $arrayIteratorMock->next()->shouldBeCalledTimes(1);
         $folderGeneratorMock->generate($resourceMock->reveal())->willReturn($folderMock->reveal())->shouldBeCalledTimes(1);
         $requestGeneratorMock->generate($resourceMock->reveal())->willReturn([$requestMock->reveal()])->shouldBeCalledTimes(1);
         $folderMock->setRequests([$requestMock->reveal()])->shouldBeCalledTimes(1);
@@ -24,7 +29,7 @@ class CollectionGeneratorTest extends \PHPUnit_Framework_TestCase
         $folderMock->getRequests()->willReturn([$requestMock->reveal()])->shouldBeCalledTimes(1);
 
         $generator = new CollectionGenerator(
-            $resourceRegistryMock->reveal(),
+            $resourceCollectionMock->reveal(),
             $requestGeneratorMock->reveal(),
             $folderGeneratorMock->reveal(),
             false,

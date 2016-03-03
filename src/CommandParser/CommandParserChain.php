@@ -13,11 +13,11 @@ class CommandParserChain implements CommandParserInterface
     private $parsers = [];
 
     /**
-     * @param CommandParserInterface $parser
+     * @param CommandParserInterface[] $parsers
      */
-    public function addCommandParser(CommandParserInterface $parser)
+    public function __construct(array $parsers)
     {
-        $this->parsers[] = $parser;
+        $this->parsers = $parsers;
     }
 
     /**

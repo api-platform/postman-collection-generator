@@ -6,8 +6,12 @@ use PostmanGeneratorBundle\Faker\Guesser\Guesser;
 
 class GuesserTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @dataProvider getFakeData
+     */
     public function testGuess($expected)
     {
+        $this->markTestIncomplete();
         $generatorMock = $this->prophesize('Faker\Generator');
         $iriConverterMock = $this->prophesize('Dunglas\ApiBundle\Api\IriConverterInterface');
         $resourceCollectionMock = $this->prophesize('Dunglas\ApiBundle\Api\ResourceCollectionInterface');
@@ -31,6 +35,7 @@ class GuesserTest extends \PHPUnit_Framework_TestCase
     {
         return [
             [
+                '',
                 // single association
                 // collection
                 // faker (`name`)

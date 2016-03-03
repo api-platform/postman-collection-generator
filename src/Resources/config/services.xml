@@ -57,7 +57,9 @@
         </service>
 
         <!-- Request parsers -->
-        <service id="postman.request_parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain" />
+        <service id="postman.request_parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain">
+            <argument />
+        </service>
 
         <service id="postman.request_parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
             <tag name="postman.request_parser" />
@@ -84,7 +86,9 @@
         </service>
 
         <!-- Command parsers -->
-        <service id="postman.command_parser.chain" class="PostmanGeneratorBundle\CommandParser\CommandParserChain" />
+        <service id="postman.command_parser.chain" class="PostmanGeneratorBundle\CommandParser\CommandParserChain">
+            <argument />
+        </service>
 
         <service id="postman.command_parser.oauth2" class="PostmanGeneratorBundle\CommandParser\OAuth2CommandParser">
             <argument type="service" id="serializer" />

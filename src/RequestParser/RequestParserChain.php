@@ -12,11 +12,11 @@ class RequestParserChain implements RequestParserInterface
     private $parsers = [];
 
     /**
-     * @param RequestParserInterface $parser
+     * @param RequestParserInterface[] $parsers
      */
-    public function addRequestParser(RequestParserInterface $parser)
+    public function __construct(array $parsers)
     {
-        $this->parsers[] = $parser;
+        $this->parsers = $parsers;
     }
 
     /**

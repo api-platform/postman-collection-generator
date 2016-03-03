@@ -147,7 +147,7 @@ class Guesser extends Name
             return $this->generator->time;
         }
 
-        return null;
+        return;
     }
 
     /**

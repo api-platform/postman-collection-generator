@@ -104,7 +104,7 @@ class Authentication
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isSynced()
     {

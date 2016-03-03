@@ -17,15 +17,12 @@ class CommandParserCompilerPass implements CompilerPassInterface
 
         $commandParsers = [];
         foreach ($container->findTaggedServiceIds('postman.command_parser') as $serviceId => $tags) {
-            foreach ($tags as $attributes) {
-                $priority = isset($attributes['priority']) ? $attributes['priority'] : 0;
-                $commandParsers[$priority][] = new Reference($serviceId);
-            }
+            $attributes = $container->getDefinition($serviceId)->getTag('postman.command_parser');
+            $priority = isset($attributes['priority']) ? $attributes['priority'] : 0;
+            $commandParsers[$priority][] = new Reference($serviceId);
         }
         krsort($commandParsers);
 
-        foreach (call_user_func_array('array_merge', $commandParsers) as $commandParser) {
-            $registryDefinition->addMethodCall('addCommandParser', [$commandParser]);
-        }
+        $registryDefinition->replaceArgument(0, call_user_func_array('array_merge', $commandParsers));
     }
 }

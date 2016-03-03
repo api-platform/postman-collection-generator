@@ -17,15 +17,12 @@ class RequestParserCompilerPass implements CompilerPassInterface
 
         $requestParsers = [];
         foreach ($container->findTaggedServiceIds('postman.request_parser') as $serviceId => $tags) {
-            foreach ($tags as $attributes) {
-                $priority = isset($attributes['priority']) ? $attributes['priority'] : 0;
-                $requestParsers[$priority][] = new Reference($serviceId);
-            }
+            $attributes = $container->getDefinition($serviceId)->getTag('postman.request_parser');
+            $priority = isset($attributes['priority']) ? $attributes['priority'] : 0;
+            $requestParsers[$priority][] = new Reference($serviceId);
         }
         krsort($requestParsers);
 
-        foreach (call_user_func_array('array_merge', $requestParsers) as $requestParser) {
-            $registryDefinition->addMethodCall('addRequestParser', [$requestParser]);
-        }
+        $registryDefinition->replaceArgument(0, call_user_func_array('array_merge', $requestParsers));
     }
 }

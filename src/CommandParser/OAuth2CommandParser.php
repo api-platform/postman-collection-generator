@@ -39,7 +39,7 @@ class OAuth2CommandParser implements CommandParserInterface
      * @param string              $rootDir
      * @param string              $authentication
      */
-    public function __construct(NormalizerInterface $normalizer, $rootDir, $authentication)
+    public function __construct(NormalizerInterface $normalizer, $rootDir, $authentication = null)
     {
         $this->normalizer = $normalizer;
         $this->rootDir = $rootDir;
