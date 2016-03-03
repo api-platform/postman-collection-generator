@@ -2,9 +2,8 @@
 
 namespace PostmanGeneratorBundle;
 
-use PostmanGeneratorBundle\DependencyInjection\CompilerPass\AuthenticatorCompilerPass;
+use PostmanGeneratorBundle\DependencyInjection\CompilerPass\CommandParserCompilerPass;
 use PostmanGeneratorBundle\DependencyInjection\CompilerPass\RequestParserCompilerPass;
-use PostmanGeneratorBundle\DependencyInjection\CompilerPass\ResourceCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -15,7 +14,7 @@ class PostmanGeneratorBundle extends Bundle
      */
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new AuthenticatorCompilerPass());
         $container->addCompilerPass(new RequestParserCompilerPass());
+        $container->addCompilerPass(new CommandParserCompilerPass());
     }
 }

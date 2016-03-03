@@ -11,11 +11,6 @@ use Ramsey\Uuid\Uuid;
 class RequestGenerator implements GeneratorInterface
 {
     /**
-     * @var AuthenticationGenerator
-     */
-    private $authenticationGenerator;
-
-    /**
      * @var RequestParserChain
      */
     private $requestParser;
@@ -26,26 +21,13 @@ class RequestGenerator implements GeneratorInterface
     private $baseUrl;
 
     /**
-     * @var string
+     * @param RequestParserChain $requestParser
+     * @param string             $baseUrl
      */
-    private $authentication;
-
-    /**
-     * @param AuthenticationGenerator $authenticationGenerator
-     * @param RequestParserChain      $requestParser
-     * @param string                  $baseUrl
-     * @param null                    $authentication
-     */
-    public function __construct(
-        AuthenticationGenerator $authenticationGenerator,
-        RequestParserChain $requestParser,
-        $baseUrl,
-        $authentication = null
-    ) {
-        $this->authenticationGenerator = $authenticationGenerator;
+    public function __construct(RequestParserChain $requestParser, $baseUrl)
+    {
         $this->requestParser = $requestParser;
         $this->baseUrl = $baseUrl;
-        $this->authentication = $authentication;
     }
 
     /**
@@ -69,12 +51,6 @@ class RequestGenerator implements GeneratorInterface
                 $request->setMethod($method);
                 if (isset($operation->getContext()['hydra:title'])) {
                     $request->setName($operation->getContext()['hydra:title']);
-                }
-
-                // Authentication
-                // @todo Move to dedicated RequestParser
-                if (null !== $this->authentication) {
-                    $this->authenticationGenerator->get($this->authentication)->generate($request);
                 }
 
                 $this->requestParser->parse($request);

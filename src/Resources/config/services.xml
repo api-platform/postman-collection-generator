@@ -8,8 +8,8 @@
 
         <service id="postman.command.collection_build" class="PostmanGeneratorBundle\Command\PostmanCollectionBuildCommand">
             <argument type="service" id="postman.generator.collection" />
-            <argument type="service" id="postman.generator.authentication" />
             <argument type="service" id="serializer" />
+            <argument type="service" id="postman.command_parser.chain" />
             <argument>%postman.name%</argument>
             <argument>%kernel.root_dir%</argument>
             <tag name="console.command" />
@@ -28,21 +28,8 @@
         <service id="postman.generator.folder" class="PostmanGeneratorBundle\Generator\FolderGenerator" />
 
         <service id="postman.generator.request" class="PostmanGeneratorBundle\Generator\RequestGenerator">
-            <argument type="service" id="postman.generator.authentication" />
-            <argument type="service" id="postman.parser.chain" />
+            <argument type="service" id="postman.request_parser.chain" />
             <argument>%postman.baseUrl%</argument>
-            <argument>%postman.authentication%</argument>
-        </service>
-
-        <service id="postman.generator.authentication" class="PostmanGeneratorBundle\Generator\AuthenticationGenerator" />
-
-        <!-- Authenticators -->
-        <service id="postman.authenticator.oauth2" class="PostmanGeneratorBundle\Authenticator\OAuth2Authenticator">
-            <tag name="postman.authenticator" alias="oauth2" />
-        </service>
-
-        <service id="postman.authenticator.jwt" class="PostmanGeneratorBundle\Authenticator\JwtAuthenticator">
-            <tag name="postman.authenticator" alias="jwt" />
         </service>
 
         <!-- Normalizers -->
@@ -70,25 +57,40 @@
         </service>
 
         <!-- Request parsers -->
-        <service id="postman.parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain" />
+        <service id="postman.request_parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain" />
 
-        <service id="postman.parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
+        <service id="postman.request_parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
             <tag name="postman.request_parser" />
         </service>
 
-        <service id="postman.parser.name" class="PostmanGeneratorBundle\RequestParser\NameRequestParser">
+        <service id="postman.request_parser.name" class="PostmanGeneratorBundle\RequestParser\NameRequestParser">
             <tag name="postman.request_parser" priority="1" />
         </service>
 
-        <service id="postman.parser.data" class="PostmanGeneratorBundle\RequestParser\DataRequestParser">
+        <service id="postman.request_parser.data" class="PostmanGeneratorBundle\RequestParser\DataRequestParser">
             <argument type="service" id="api.mapping.class_metadata_factory" />
             <argument type="service" id="annotation_reader" />
             <argument type="service" id="postman.guesser" />
             <tag name="postman.request_parser" />
         </service>
 
-        <service id="postman.parser.test" class="PostmanGeneratorBundle\RequestParser\TestRequestParser">
+        <service id="postman.request_parser.test" class="PostmanGeneratorBundle\RequestParser\TestRequestParser">
             <tag name="postman.request_parser" />
+        </service>
+
+        <service id="postman.request_parser.oauth2" class="PostmanGeneratorBundle\RequestParser\OAuth2RequestParser">
+            <argument>%postman.authentication%</argument>
+            <tag name="postman.request_parser" />
+        </service>
+
+        <!-- Command parsers -->
+        <service id="postman.command_parser.chain" class="PostmanGeneratorBundle\CommandParser\CommandParserChain" />
+
+        <service id="postman.command_parser.oauth2" class="PostmanGeneratorBundle\CommandParser\OAuth2CommandParser">
+            <argument type="service" id="serializer" />
+            <argument>%kernel.root_dir%</argument>
+            <argument>%postman.authentication%</argument>
+            <tag name="postman.command_parser" />
         </service>
 
     </services>

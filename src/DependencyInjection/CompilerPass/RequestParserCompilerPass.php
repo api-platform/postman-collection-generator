@@ -13,7 +13,7 @@ class RequestParserCompilerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container)
     {
-        $registryDefinition = $container->getDefinition('postman.parser.chain');
+        $registryDefinition = $container->getDefinition('postman.request_parser.chain');
 
         $requestParsers = [];
         foreach ($container->findTaggedServiceIds('postman.request_parser') as $serviceId => $tags) {
