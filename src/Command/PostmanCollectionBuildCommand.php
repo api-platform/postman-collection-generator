@@ -75,15 +75,16 @@ EOT
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function interact(InputInterface $input, OutputInterface $output)
-    {
-        foreach ($this->authenticationGenerator->getCommandAuthenticators() as $authenticator) {
-            $authenticator->interact($input, $output);
-        }
-    }
+//    /**
+//     * {@inheritdoc}
+//     * Will be managed in a dedicated development about authentication
+//     */
+//    protected function interact(InputInterface $input, OutputInterface $output)
+//    {
+//        foreach ($this->authenticationGenerator->getCommandAuthenticators() as $authenticator) {
+//            $authenticator->interact($input, $output);
+//        }
+//    }
 
     /**
      * {@inheritdoc}

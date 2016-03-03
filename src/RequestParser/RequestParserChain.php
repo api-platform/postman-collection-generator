@@ -4,7 +4,7 @@ namespace PostmanGeneratorBundle\RequestParser;
 
 use PostmanGeneratorBundle\Model\Request;
 
-class RequestParserFactory
+class RequestParserChain implements RequestParserInterface
 {
     /**
      * @var RequestParserInterface[]
@@ -20,7 +20,7 @@ class RequestParserFactory
     }
 
     /**
-     * @param Request $request
+     * {@inheritdoc}
      */
     public function parse(Request $request)
     {
@@ -29,5 +29,13 @@ class RequestParserFactory
                 $parser->parse($request);
             }
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supports(Request $request)
+    {
+        return true;
     }
 }

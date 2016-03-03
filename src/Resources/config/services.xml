@@ -15,6 +15,7 @@
             <tag name="console.command" />
         </service>
 
+        <!-- Generators -->
         <service id="postman.generator.collection" class="PostmanGeneratorBundle\Generator\CollectionGenerator">
             <argument type="service" id="api.resource_collection" />
             <argument type="service" id="postman.generator.request" />
@@ -31,13 +32,15 @@
             <argument type="service" id="api.mapping.loaders.attributes" />
             <argument type="service" id="postman.generator.authentication" />
             <argument type="service" id="postman.guesser" />
-            <argument type="service" id="postman.parser.factory" />
+            <argument type="service" id="postman.parser.chain" />
             <argument type="service" id="annotation_reader" />
+            <argument>%postman.baseUrl%</argument>
             <argument>%postman.authentication%</argument>
         </service>
 
         <service id="postman.generator.authentication" class="PostmanGeneratorBundle\Generator\AuthenticationGenerator" />
 
+        <!-- Authenticators -->
         <service id="postman.authenticator.oauth2" class="PostmanGeneratorBundle\Authenticator\OAuth2Authenticator">
             <tag name="postman.authenticator" alias="oauth2" />
         </service>
@@ -46,6 +49,7 @@
             <tag name="postman.authenticator" alias="jwt" />
         </service>
 
+        <!-- Normalizers -->
         <service id="postman.normalizer.request" class="PostmanGeneratorBundle\Normalizer\RequestNormalizer" public="false">
             <tag name="serializer.normalizer" />
         </service>
@@ -54,6 +58,7 @@
             <tag name="serializer.normalizer" />
         </service>
 
+        <!-- Faker -->
         <service id="postman.faker.factory" class="Faker\Factory" />
 
         <service id="postman.faker" class="Faker\Generator">
@@ -68,7 +73,8 @@
             <argument type="service" id="api.mapping.class_metadata_factory" />
         </service>
 
-        <service id="postman.parser.factory" class="PostmanGeneratorBundle\RequestParser\RequestParserFactory" />
+        <!-- Request parsers -->
+        <service id="postman.parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain" />
 
         <service id="postman.parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
             <argument>%postman.baseUrl%</argument>

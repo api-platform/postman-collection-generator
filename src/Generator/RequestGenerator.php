@@ -11,30 +11,15 @@ use Dunglas\ApiBundle\Mapping\Loader\AttributesLoader;
 use PostmanGeneratorBundle\Faker\Guesser\Guesser;
 use PostmanGeneratorBundle\Model\Request;
 use PostmanGeneratorBundle\Model\Test;
-use PostmanGeneratorBundle\RequestParser\RequestParserFactory;
+use PostmanGeneratorBundle\RequestParser\RequestParserChain;
 use Ramsey\Uuid\Uuid;
 
 class RequestGenerator implements GeneratorInterface
 {
     /**
-     * @var AuthenticationGenerator
-     */
-    private $authenticationGenerator;
-
-    /**
      * @var ClassMetadataFactoryInterface
      */
     private $classMetadataFactory;
-
-    /**
-     * @var string
-     */
-    private $authentication;
-
-    /**
-     * @var Guesser
-     */
-    private $guesser;
 
     /**
      * @var AttributesLoader
@@ -42,9 +27,19 @@ class RequestGenerator implements GeneratorInterface
     private $attributesLoader;
 
     /**
-     * @var RequestParserFactory
+     * @var AuthenticationGenerator
      */
-    private $requestParserFactory;
+    private $authenticationGenerator;
+
+    /**
+     * @var Guesser
+     */
+    private $guesser;
+
+    /**
+     * @var RequestParserChain
+     */
+    private $requestParser;
 
     /**
      * @var Reader
@@ -52,12 +47,23 @@ class RequestGenerator implements GeneratorInterface
     private $reader;
 
     /**
+     * @var string
+     */
+    private $baseUrl;
+
+    /**
+     * @var string
+     */
+    private $authentication;
+
+    /**
      * @param ClassMetadataFactoryInterface $classMetadataFactory
      * @param AttributesLoader              $attributesLoader
      * @param AuthenticationGenerator       $authenticationGenerator
      * @param Guesser                       $guesser
-     * @param RequestParserFactory          $requestParserFactory
+     * @param RequestParserChain            $requestParser
      * @param Reader                        $reader
+     * @param string                        $baseUrl
      * @param string                        $authentication
      */
     public function __construct(
@@ -65,16 +71,18 @@ class RequestGenerator implements GeneratorInterface
         AttributesLoader $attributesLoader,
         AuthenticationGenerator $authenticationGenerator,
         Guesser $guesser,
-        RequestParserFactory $requestParserFactory,
+        RequestParserChain $requestParser,
         Reader $reader,
+        $baseUrl,
         $authentication = null
     ) {
         $this->classMetadataFactory = $classMetadataFactory;
         $this->attributesLoader = $attributesLoader;
         $this->authenticationGenerator = $authenticationGenerator;
         $this->guesser = $guesser;
-        $this->requestParserFactory = $requestParserFactory;
+        $this->requestParser = $requestParser;
         $this->reader = $reader;
+        $this->baseUrl = $baseUrl;
         $this->authentication = $authentication;
     }
 
@@ -98,6 +106,7 @@ class RequestGenerator implements GeneratorInterface
         foreach ($operations as $operation) {
             $route = $operation->getRoute();
             foreach ($route->getMethods() as $method) {
+                // @todo Move default name generation to dedicated RequestParser
                 $isCollection = 'DunglasApiBundle:Resource:cget' === $route->getDefault('_controller');
                 $name = $this->generateDefaultName($method, $resource->getShortName(), $isCollection);
                 if (isset($operation->getContext()['hydra:title'])) {
@@ -106,7 +115,7 @@ class RequestGenerator implements GeneratorInterface
 
                 $request = new Request();
                 $request->setId((string) Uuid::uuid4());
-                $request->setUrl($route->getPath());
+                $request->setUrl($this->baseUrl.$route->getPath());
                 $request->setMethod($method);
                 $request->setName($name);
 
@@ -116,6 +125,7 @@ class RequestGenerator implements GeneratorInterface
                 }
 
                 // Manage request data & ContentType header
+                // @todo Move to dedicated RequestParser
                 if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
                     $request->addHeader('Content-Type', 'application/json');
                     $request->setDataMode(Request::DATA_MODE_RAW);
@@ -140,6 +150,7 @@ class RequestGenerator implements GeneratorInterface
                 }
 
                 // Add tests
+                // @todo Move to dedicated RequestParser
                 switch ($method) {
                     case 'POST':
                         $request->addTest(new Test('Successful POST request', 'responseCode.code === 201 || responseCode.code === 202'));
@@ -156,7 +167,7 @@ class RequestGenerator implements GeneratorInterface
                         break;
                 }
 
-                $this->requestParserFactory->parse($request);
+                $this->requestParser->parse($request);
                 $requests[] = $request;
             }
         }

@@ -26,7 +26,7 @@ class UriRequestParser implements RequestParserInterface
      */
     public function parse(Request $request)
     {
-        $request->setUrl($this->baseUrl.preg_replace(self::PATTERN, '/1', $request->getUrl()));
+        $request->setUrl(preg_replace(self::PATTERN, '/1', $request->getUrl()));
     }
 
     /**
