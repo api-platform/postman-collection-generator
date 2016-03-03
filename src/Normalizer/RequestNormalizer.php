@@ -18,8 +18,12 @@ class RequestNormalizer implements NormalizerInterface
     {
         $data = [];
         $reflectionClass = new \ReflectionClass($object);
+        /** @var \ReflectionProperty[] $properties */
+        $properties = array_filter($reflectionClass->getProperties(), function (\ReflectionProperty $property) {
+            return 'resource' !== $property->getName();
+        });
 
-        foreach ($reflectionClass->getProperties() as $property) {
+        foreach ($properties as $property) {
             if ('fromCollection' !== $property->getName()) {
                 $method = $reflectionClass->getMethod('get'.Inflector::classify($property->getName()));
             } else {

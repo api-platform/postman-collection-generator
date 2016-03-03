@@ -28,12 +28,8 @@
         <service id="postman.generator.folder" class="PostmanGeneratorBundle\Generator\FolderGenerator" />
 
         <service id="postman.generator.request" class="PostmanGeneratorBundle\Generator\RequestGenerator">
-            <argument type="service" id="api.mapping.class_metadata_factory" />
-            <argument type="service" id="api.mapping.loaders.attributes" />
             <argument type="service" id="postman.generator.authentication" />
-            <argument type="service" id="postman.guesser" />
             <argument type="service" id="postman.parser.chain" />
-            <argument type="service" id="annotation_reader" />
             <argument>%postman.baseUrl%</argument>
             <argument>%postman.authentication%</argument>
         </service>
@@ -77,7 +73,21 @@
         <service id="postman.parser.chain" class="PostmanGeneratorBundle\RequestParser\RequestParserChain" />
 
         <service id="postman.parser.uri" class="PostmanGeneratorBundle\RequestParser\UriRequestParser">
-            <argument>%postman.baseUrl%</argument>
+            <tag name="postman.request_parser" />
+        </service>
+
+        <service id="postman.parser.name" class="PostmanGeneratorBundle\RequestParser\NameRequestParser">
+            <tag name="postman.request_parser" />
+        </service>
+
+        <service id="postman.parser.data" class="PostmanGeneratorBundle\RequestParser\DataRequestParser">
+            <argument type="service" id="api.mapping.class_metadata_factory" />
+            <argument type="service" id="annotation_reader" />
+            <argument type="service" id="postman.guesser" />
+            <tag name="postman.request_parser" />
+        </service>
+
+        <service id="postman.parser.test" class="PostmanGeneratorBundle\RequestParser\TestRequestParser">
             <tag name="postman.request_parser" />
         </service>
 

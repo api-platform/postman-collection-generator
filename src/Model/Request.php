@@ -2,6 +2,8 @@
 
 namespace PostmanGeneratorBundle\Model;
 
+use Dunglas\ApiBundle\Api\ResourceInterface;
+
 class Request
 {
     const DATA_MODE_PARAMS = 'params';
@@ -101,6 +103,11 @@ class Request
      * @var Collection
      */
     private $collection;
+
+    /**
+     * @var ResourceInterface
+     */
+    private $resource;
 
     /**
      * @var array
@@ -416,6 +423,22 @@ class Request
     public function setCollection(Collection $collection)
     {
         $this->collection = $collection;
+    }
+
+    /**
+     * @return ResourceInterface
+     */
+    public function getResource()
+    {
+        return $this->resource;
+    }
+
+    /**
+     * @param ResourceInterface $resource
+     */
+    public function setResource(ResourceInterface $resource)
+    {
+        $this->resource = $resource;
     }
 
     /**

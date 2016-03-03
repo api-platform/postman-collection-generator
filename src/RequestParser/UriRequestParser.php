@@ -9,19 +9,6 @@ class UriRequestParser implements RequestParserInterface
     const PATTERN = '/\/({id})/';
 
     /**
-     * @var string
-     */
-    private $baseUrl;
-
-    /**
-     * @param string $baseUrl
-     */
-    public function __construct($baseUrl)
-    {
-        $this->baseUrl = $baseUrl;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function parse(Request $request)
