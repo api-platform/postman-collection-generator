@@ -120,28 +120,6 @@ class Guesser extends Name
     }
 
     /**
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    private function clean($value)
-    {
-        if (is_array($value)) {
-            $value = array_map([$this, 'clean'], $value);
-        }
-
-        if ($value instanceof \Closure) {
-            $value = call_user_func($value);
-        }
-
-        if ($value instanceof \DateTime) {
-            $value = $value->format('Y-m-d H:i:s');
-        }
-
-        return preg_replace("/\n/", ', ', $value);
-    }
-
-    /**
      * @param string $name
      *
      * @return mixed
@@ -169,6 +147,28 @@ class Guesser extends Name
             return $this->generator->time;
         }
 
-        return;
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    private function clean($value)
+    {
+        if (is_array($value)) {
+            $value = array_map([$this, 'clean'], $value);
+        }
+
+        if ($value instanceof \Closure) {
+            $value = call_user_func($value);
+        }
+
+        if ($value instanceof \DateTime) {
+            $value = $value->format('Y-m-d H:i:s');
+        }
+
+        return preg_replace("/\n/", ', ', $value);
     }
 }

@@ -3,6 +3,7 @@
 namespace PostmanGeneratorBundle\Generator;
 
 use PostmanGeneratorBundle\Authenticator\AuthenticatorInterface;
+use PostmanGeneratorBundle\Authenticator\CommandAuthenticatorInterface;
 
 class AuthenticationGenerator
 {
@@ -28,5 +29,15 @@ class AuthenticationGenerator
     public function get($alias)
     {
         return $this->authenticators[$alias];
+    }
+
+    /**
+     * @return CommandAuthenticatorInterface[]
+     */
+    public function getCommandAuthenticators()
+    {
+        return array_filter($this->authenticators, function (AuthenticatorInterface $authenticator) {
+            return $authenticator instanceof CommandAuthenticatorInterface;
+        });
     }
 }

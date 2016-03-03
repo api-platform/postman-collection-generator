@@ -10,6 +10,7 @@ use Dunglas\ApiBundle\Mapping\ClassMetadataFactoryInterface;
 use Dunglas\ApiBundle\Mapping\Loader\AttributesLoader;
 use PostmanGeneratorBundle\Faker\Guesser\Guesser;
 use PostmanGeneratorBundle\Model\Request;
+use PostmanGeneratorBundle\Model\Test;
 use PostmanGeneratorBundle\RequestParser\RequestParserFactory;
 use Ramsey\Uuid\Uuid;
 
@@ -137,22 +138,29 @@ class RequestGenerator implements GeneratorInterface
                     $request->setRawModeData($rawModeData);
                 }
 
+                // Add tests
+                switch ($method) {
+                    case 'POST':
+                        $request->addTest(new Test('Successful POST request', 'responseCode.code === 201 || responseCode.code === 202'));
+                        $request->addTest(new Test('Content-Type is correct', 'postman.getResponseHeader("Content-Type") === "application/ld+json"'));
+                        break;
+                    case 'PUT':
+                    case 'PATCH':
+                    case 'GET':
+                        $request->addTest(new Test(sprintf('Successful %s request', $method), 'responseCode.code === 200'));
+                        $request->addTest(new Test('Content-Type is correct', 'postman.getResponseHeader("Content-Type") === "application/ld+json"'));
+                        break;
+                    case 'DELETE':
+                        $request->addTest(new Test('Successful DELETE request', 'responseCode.code === 204'));
+                        break;
+                }
+
                 $this->requestParserFactory->parse($request);
                 $requests[] = $request;
             }
         }
 
         return $requests;
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
-    private function generateUrl($url)
-    {
-        return rtrim($this->baseUrl, '/').str_ireplace('{id}', 1, $url);
     }
 
     /**

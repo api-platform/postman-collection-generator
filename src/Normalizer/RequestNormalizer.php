@@ -4,6 +4,7 @@ namespace PostmanGeneratorBundle\Normalizer;
 
 use Doctrine\Common\Inflector\Inflector;
 use PostmanGeneratorBundle\Model\Request;
+use PostmanGeneratorBundle\Model\Test;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class RequestNormalizer implements NormalizerInterface
@@ -38,6 +39,11 @@ class RequestNormalizer implements NormalizerInterface
                 $rawModeData = preg_replace('/([{,])/', "\$1\n    ", $rawModeData);
                 $rawModeData = preg_replace('/([}])/', "\n}", $rawModeData);
                 $data[$property->getName()] = $rawModeData;
+            } elseif ('tests' === $property->getName()) {
+                $tests = implode("\n\n", array_map(function (Test $test) {
+                    return sprintf('tests["%s"] = %s;', $test->getMessage(), $test->getExecutor());
+                }, $object->getTests()));
+                $data[$property->getName()] = $tests;
             } else {
                 $data[$property->getName()] = $method->invoke($object);
             }

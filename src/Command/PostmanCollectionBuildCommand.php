@@ -3,6 +3,7 @@
 namespace PostmanGeneratorBundle\Command;
 
 use Doctrine\Common\Inflector\Inflector;
+use PostmanGeneratorBundle\Generator\AuthenticationGenerator;
 use PostmanGeneratorBundle\Generator\CollectionGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,11 @@ class PostmanCollectionBuildCommand extends Command
      * @var CollectionGenerator
      */
     private $collectionGenerator;
+
+    /**
+     * @var AuthenticationGenerator
+     */
+    private $authenticationGenerator;
 
     /**
      * @var NormalizerInterface
@@ -32,13 +38,15 @@ class PostmanCollectionBuildCommand extends Command
     private $rootDir;
 
     /**
-     * @param CollectionGenerator $collectionGenerator
-     * @param NormalizerInterface $normalizer
-     * @param string              $name
-     * @param string              $rootDir
+     * @param CollectionGenerator     $collectionGenerator
+     * @param AuthenticationGenerator $authenticationGenerator
+     * @param NormalizerInterface     $normalizer
+     * @param string                  $name
+     * @param string                  $rootDir
      */
     public function __construct(
         CollectionGenerator $collectionGenerator,
+        AuthenticationGenerator $authenticationGenerator,
         NormalizerInterface $normalizer,
         $name,
         $rootDir
@@ -65,6 +73,16 @@ but don't forget to pass all required arguments.
 EOT
             )
         ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function interact(InputInterface $input, OutputInterface $output)
+    {
+        foreach ($this->authenticationGenerator->getCommandAuthenticators() as $authenticator) {
+            $authenticator->interact($input, $output);
+        }
     }
 
     /**

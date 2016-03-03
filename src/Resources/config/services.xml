@@ -8,6 +8,7 @@
 
         <service id="postman.command.collection_build" class="PostmanGeneratorBundle\Command\PostmanCollectionBuildCommand">
             <argument type="service" id="postman.generator.collection" />
+            <argument type="service" id="postman.generator.authentication" />
             <argument type="service" id="serializer" />
             <argument>%postman.name%</argument>
             <argument>%kernel.root_dir%</argument>
