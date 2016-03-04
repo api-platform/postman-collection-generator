@@ -1,0 +1,37 @@
+framework:
+    secret:                            "PostmanGeneratorBundle"
+    router:
+        resource:                      "%kernel.root_dir%/config/routing.yml"
+        strict_requirements:           "%kernel.debug%"
+    validation:
+        enable_annotations:            true
+    serializer:
+        enable_annotations:            true
+    trusted_proxies:                   ~
+    test:                              ~
+    session:
+        storage_id:                    "session.storage.mock_file"
+
+doctrine:
+    dbal:
+        driver:                        "pdo_sqlite"
+        path:                          "%kernel.cache_dir%/db.sqlite"
+        charset:                       "UTF8"
+
+    orm:
+        auto_generate_proxy_classes:   "%kernel.debug%"
+        auto_mapping:                  true
+
+dunglas_api:
+    title:                             "My Dummy API"
+    description:                       "This is a test API."
+
+postman_generator:
+    name:                              "CollectionName"
+    baseUrl:                           "http://localhost:9000"
+
+services:
+    resource.user:
+        parent:    "api.resource"
+        arguments: [ "PostmanGeneratorBundle\\Tests\\Fixtures\\TestBundle\\Entity\\User" ]
+        tags:      [ { name: "api.resource" } ]

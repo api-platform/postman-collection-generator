@@ -2,11 +2,8 @@ default:
   suites:
     default:
       contexts:
-        - 'FeatureContext': { doctrine: '@doctrine' }
-        - 'HydraContext'
-        - 'Behat\MinkExtension\Context\MinkContext'
-        - 'Sanpi\Behatch\Context\RestContext'
-        - 'Sanpi\Behatch\Context\JsonContext'
+        - FeatureContext:
+             - "@postman.generator.collection"
   extensions:
     Behat\Symfony2Extension:
       kernel:
@@ -14,9 +11,3 @@ default:
         debug:     'true'
         path:      'tests/Fixtures/app/AppKernel.php'
         bootstrap: 'tests/Fixtures/app/bootstrap.php'
-    Behat\MinkExtension:
-      base_url: "http://example.com/"
-      sessions:
-        default:
-          symfony2: ~
-    Sanpi\Behatch\Extension: ~
