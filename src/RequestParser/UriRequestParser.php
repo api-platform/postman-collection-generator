@@ -30,6 +30,6 @@ class UriRequestParser implements RequestParserInterface
      */
     public function supports(Request $request)
     {
-        return preg_match(self::PATTERN, $request->getUrl());
+        return 1 === preg_match(self::PATTERN, $request->getUrl());
     }
 }
