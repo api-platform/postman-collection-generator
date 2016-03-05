@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the PostmanGeneratorBundle package.
+ *
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace PostmanGeneratorBundle\Normalizer;
 
 use Doctrine\Common\Inflector\Inflector;
@@ -39,9 +48,11 @@ class RequestNormalizer implements NormalizerInterface
                     $data[$property->getName()] .= "$key: $value\n";
                 }
             } elseif ('rawModeData' === $property->getName()) {
-                $rawModeData = json_encode($method->invoke($object));
-                $rawModeData = preg_replace('/([{,])/', "\$1\n    ", $rawModeData);
-                $rawModeData = preg_replace('/([}])/', "\n}", $rawModeData);
+                $rawModeData = json_encode((object)$method->invoke($object));
+                if ('{}' !== $rawModeData) {
+                    $rawModeData = preg_replace('/([{,])/', "\$1\n    ", $rawModeData);
+                    $rawModeData = preg_replace('/([}])/', "\n}", $rawModeData);
+                }
                 $data[$property->getName()] = $rawModeData;
             } elseif ('tests' === $property->getName()) {
                 $tests = implode("\n\n", array_map(function (Test $test) {
