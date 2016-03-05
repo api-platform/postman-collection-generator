@@ -51,13 +51,14 @@ env:
 
 before_install:
     - composer self-update
+    - composer global require satooshi/php-coveralls
 
 install:
     - composer install
 
 script:
-    - vendor/bin/phpunit
+    - vendor/bin/phpunit -v --coverage-clover ./build/logs/clover.xml
 #    - vendor/bin/behat
 
-after_success:
-    - coveralls
+after_script:
+    - coveralls -v
