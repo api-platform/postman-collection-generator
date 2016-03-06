@@ -39,7 +39,7 @@ class PostmanCollectionBuildCommand extends Command
     /**
      * @var string
      */
-    private $name;
+    private $collectionName;
 
     /**
      * @var string
@@ -50,14 +50,14 @@ class PostmanCollectionBuildCommand extends Command
      * @param CollectionGenerator $collectionGenerator
      * @param NormalizerInterface $normalizer
      * @param CommandParserChain  $commandParserChain
-     * @param string              $name
+     * @param string              $collectionName
      * @param string              $rootDir
      */
     public function __construct(
         CollectionGenerator $collectionGenerator,
         NormalizerInterface $normalizer,
         CommandParserChain $commandParserChain,
-        $name,
+        $collectionName,
         $rootDir
     ) {
         parent::__construct('postman:collection:build');
@@ -65,7 +65,7 @@ class PostmanCollectionBuildCommand extends Command
         $this->collectionGenerator = $collectionGenerator;
         $this->normalizer = $normalizer;
         $this->commandParserChain = $commandParserChain;
-        $this->name = $name;
+        $this->collectionName = $collectionName;
         $this->rootDir = $rootDir;
 
         $this
@@ -99,7 +99,7 @@ EOT
     {
         $this->commandParserChain->execute($input, $output);
 
-        $filename = sprintf('%s.json', Inflector::camelize(strtolower($this->name)));
+        $filename = sprintf('%s.json', Inflector::camelize(strtolower($this->collectionName)));
         $filepath = $this->rootDir.'/../'.$filename;
 
         file_put_contents($filepath, json_encode($this->normalizer->normalize($this->collectionGenerator->generate(), 'json')));
