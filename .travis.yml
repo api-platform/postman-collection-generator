@@ -49,16 +49,9 @@ env:
     global:
         - deps=no
 
-before_install:
-    - composer self-update
-    - composer global require satooshi/php-coveralls
-
 install:
     - composer install
 
 script:
-    - vendor/bin/phpunit -v --coverage-clover ./build/logs/clover.xml
+    - vendor/bin/phpunit
 #    - vendor/bin/behat
-
-after_script:
-    - coveralls -v
