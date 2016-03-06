@@ -56,7 +56,7 @@ install:
     - composer install --prefer-dist
 
 script:
-    - vendor/bin/phpunit -v --coverage-clover ./build/logs/clover.xml
+    - phpunit -v --coverage-clover ./build/logs/clover.xml
 #    - vendor/bin/behat
 
 after_script:
