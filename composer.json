@@ -1,5 +1,5 @@
 {
-    "name": "vince/postman-generator-bundle",
+    "name": "api-platform/postman-collection-generator",
     "type": "symfony-bundle",
     "description": "Generator for Postman collection based on API Platform 1.*",
     "keywords": ["Postman", "API Platform"],
