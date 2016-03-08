@@ -2,9 +2,9 @@
 
 Generator for [Postman](https://www.getpostman.com) collection based on [API Platform](https://api-platform.com/).
 
-[![Build Status](https://secure.travis-ci.org/vincentchalamon/PostmanGeneratorBundle.png?branch=master)](http://travis-ci.org/vincentchalamon/PostmanGeneratorBundle)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vincentchalamon/PostmanGeneratorBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vincentchalamon/PostmanGeneratorBundle/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/vincentchalamon/PostmanGeneratorBundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/vincentchalamon/PostmanGeneratorBundle/?branch=master)
+[![Build Status](https://travis-ci.org/api-platform/postman-collection-generator.svg?branch=master)](https://travis-ci.org/api-platform/postman-collection-generator)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/api-platform/postman-collection-generator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/api-platform/postman-collection-generator/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/api-platform/postman-collection-generator/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/api-platform/postman-collection-generator/?branch=master)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/281cec32-d5dc-4afe-9aee-8a704f1025f9/mini.png)](https://insight.sensiolabs.com/projects/281cec32-d5dc-4afe-9aee-8a704f1025f9)
 [![Dependency Status](https://www.versioneye.com/user/projects/56d1d4b3157a69002ea956f7/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d1d4b3157a69002ea956f7)
 
@@ -17,7 +17,7 @@ Feel free to contribute on it !
 Install this bundle through [Composer](https://getcomposer.org/):
 
 ```bash
-composer require --dev vince/postman-generator-bundle
+composer require --dev api-platform/postman-collection-generator
 ```
 
 Using Symfony, update your `AppKernel.php` file:
