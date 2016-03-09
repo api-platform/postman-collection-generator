@@ -37,8 +37,8 @@ class RequestParserCompilerPassTest extends \PHPUnit_Framework_TestCase
             ->willReturn($definitionMock->reveal())
             ->shouldBeCalledTimes(1);
         $definitionMock->getTag('postman.request_parser')->willReturn(
-            ['name' => 'postman.request_parser', 'priority' => 0],
-            ['name' => 'postman.request_parser', 'priority' => 1]
+            [['name' => 'postman.request_parser', 'priority' => 0]],
+            [['name' => 'postman.request_parser', 'priority' => 1]]
         )->shouldBeCalledTimes(2);
 
         $definitionMock->replaceArgument(0, [
