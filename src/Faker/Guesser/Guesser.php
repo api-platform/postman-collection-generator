@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the PostmanGeneratorBundle package.
+ * This file is part of the API Platform project.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Kévin Dunglas <dunglas@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -155,8 +155,6 @@ class Guesser extends Name
         if (preg_match('/_time$/', $name) || preg_match('/Time$/', $name)) {
             return $this->generator->time;
         }
-
-        return;
     }
 
     /**
