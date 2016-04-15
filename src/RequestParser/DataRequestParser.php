@@ -62,15 +62,14 @@ class DataRequestParser implements RequestParserInterface
 
         $rawModeData = [];
         foreach ($classMetadata->getAttributes() as $attributeMetadata) {
-            if ($classMetadata->getReflectionClass()->hasProperty($attributeMetadata->getName())) {
-                $groups = $this->reader->getPropertyAnnotation(
-                    $classMetadata->getReflectionClass()->getProperty($attributeMetadata->getName()),
-                    'Symfony\Component\Serializer\Annotation\Groups'
-                );
-            } else {
+            if (!$classMetadata->getReflectionClass()->hasProperty($attributeMetadata->getName())) {
                 // Attribute is not a property: ignore it
                 continue;
             }
+            $groups = $this->reader->getPropertyAnnotation(
+                $classMetadata->getReflectionClass()->getProperty($attributeMetadata->getName()),
+                'Symfony\Component\Serializer\Annotation\Groups'
+            );
             if (
                 $attributeMetadata->isIdentifier() ||
                 !$attributeMetadata->isReadable() ||
