@@ -129,11 +129,12 @@ class Guesser extends Name
     }
 
     /**
-     * @param string $name
+     * @param string   $name
+     * @param int|null $size Length of field, if known
      *
      * @return mixed
      */
-    public function guessFormat($name)
+    public function guessFormat($name, $size = null)
     {
         if (null !== ($value = parent::guessFormat($name))) {
             return $value;
