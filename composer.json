@@ -18,7 +18,7 @@
         "doctrine/inflector": "^1.1",
         "api-platform/core": "~1.1@beta",
         "ramsey/uuid": "^3.2",
-        "fzaninotto/faker": "^1.5"
+        "fzaninotto/faker": "^1.6"
     },
     "require-dev": {
         "phpunit/phpunit": "<5.0",
