@@ -33,7 +33,7 @@ class TestRequestParserTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->requestMock = $this->prophesize('PostmanGeneratorBundle\Model\Request');
-        
+
         $this->parser = new TestRequestParser();
     }
 
@@ -65,7 +65,7 @@ class TestRequestParserTest extends \PHPUnit_Framework_TestCase
                 'POST',
                 [
                     new Test('Successful POST request', 'responseCode.code === 201 || responseCode.code === 202'),
-                    new Test('Content-Type is correct', 'postman.getResponseHeader("Content-Type") === "application/ld+json"')
+                    new Test('Content-Type is correct', 'postman.getResponseHeader("Content-Type") === "application/ld+json"'),
                 ],
             ],
             [
@@ -92,7 +92,7 @@ class TestRequestParserTest extends \PHPUnit_Framework_TestCase
             [
                 'DELETE',
                 [
-                    new Test('Successful DELETE request', 'responseCode.code === 204')
+                    new Test('Successful DELETE request', 'responseCode.code === 204'),
                 ],
             ],
         ];

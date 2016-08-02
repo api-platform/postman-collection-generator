@@ -48,7 +48,7 @@ class RequestNormalizer implements NormalizerInterface
                     $data[$property->getName()] .= "$key: $value\n";
                 }
             } elseif ('rawModeData' === $property->getName()) {
-                $rawModeData = json_encode((object)$method->invoke($object));
+                $rawModeData = json_encode((object) $method->invoke($object));
                 if ('{}' !== $rawModeData) {
                     $rawModeData = preg_replace('/([{,])/', "\$1\n    ", $rawModeData);
                     $rawModeData = preg_replace('/([}])/', "\n}", $rawModeData);

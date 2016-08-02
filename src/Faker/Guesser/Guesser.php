@@ -156,8 +156,6 @@ class Guesser extends Name
         if (preg_match('/_time$/', $name) || preg_match('/Time$/', $name)) {
             return $this->generator->time;
         }
-
-        return;
     }
 
     /**

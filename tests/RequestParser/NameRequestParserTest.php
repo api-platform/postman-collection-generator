@@ -12,7 +12,6 @@
 namespace RequestParser;
 
 use PostmanGeneratorBundle\RequestParser\NameRequestParser;
-use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 
 class NameRequestParserTest extends \PHPUnit_Framework_TestCase
