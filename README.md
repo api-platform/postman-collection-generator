@@ -17,7 +17,7 @@ Feel free to contribute on it !
 Install this bundle through [Composer](https://getcomposer.org/):
 
 ```bash
-composer require --dev api-platform/postman-collection-generator
+composer require --dev api-platform/postman-collection-generator:dev-master
 ```
 
 Using Symfony, update your `AppKernel.php` file:
