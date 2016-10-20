@@ -1,5 +1,7 @@
 # PostmanGeneratorBundle
 
+**This bundle is not necessary anymore if you use API Platform 2.0 or superior.** API Platform now supports natively [Swagger](http://swagger.io/) and Postman is able to create collections from a Swagger documentation. 
+
 Generator for [Postman](https://www.getpostman.com) collection based on [API Platform](https://api-platform.com/).
 
 [![Build Status](https://travis-ci.org/api-platform/postman-collection-generator.svg?branch=master)](https://travis-ci.org/api-platform/postman-collection-generator)
