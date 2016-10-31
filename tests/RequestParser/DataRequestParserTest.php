@@ -77,7 +77,13 @@ class DataRequestParserTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->parser->supports($this->requestMock->reveal()));
     }
 
-    public function testParse()
+    /**
+     * @dataProvider getDataProvider
+     *
+     * @param string $name
+     * @param array  $options
+     */
+    public function testParse($name, array $options)
     {
         $classMetadataMock = $this->prophesize('Dunglas\ApiBundle\Mapping\ClassMetadataInterface');
         $resourceMock = $this->prophesize('Dunglas\ApiBundle\Api\ResourceInterface');
@@ -88,7 +94,7 @@ class DataRequestParserTest extends \PHPUnit_Framework_TestCase
 
         $resourceMock->getEntityClass()->willReturn('\User')->shouldBeCalledTimes(1);
         $resourceMock->getNormalizationGroups()->willReturn(['user_output'])->shouldBeCalledTimes(1);
-        $resourceMock->getDenormalizationGroups()->willReturn(['user_input'])->shouldBeCalledTimes(4);
+        $resourceMock->getDenormalizationGroups()->willReturn(['user_input'])->shouldBeCalled();
         $resourceMock->getValidationGroups()->shouldBeCalledTimes(1);
 
         $this->requestMock->getResource()->willReturn($resourceMock->reveal())->shouldBeCalledTimes(1);
@@ -99,36 +105,98 @@ class DataRequestParserTest extends \PHPUnit_Framework_TestCase
         $this->requestMock->addHeader('Content-Type', 'application/json')->shouldBeCalledTimes(1);
         $this->requestMock->setDataMode(Request::DATA_MODE_RAW)->shouldBeCalledTimes(1);
 
-        $classMetadataMock->getAttributes()->willReturn([
-            $attributeMetadataMock->reveal(), // identifier
-            $attributeMetadataMock->reveal(), // not readable
-            $attributeMetadataMock->reveal(), // no groups
-            $attributeMetadataMock->reveal(), // wrong groups
-            $attributeMetadataMock->reveal(), // right groups
-        ])->shouldBeCalledTimes(1);
+        $classMetadataMock->getAttributes()->willReturn([$attributeMetadataMock->reveal()])->shouldBeCalledTimes(1);
 
-        $attributeMetadataMock->getName()
-            ->willReturn('id', 'name', 'description', 'bar', 'foo', 'foo')
-            ->shouldBeCalledTimes(6);
-        $classMetadataMock->getReflectionClass()->willReturn($reflectionClassMock->reveal())->shouldBeCalledTimes(5);
-        $reflectionClassMock->getProperty(Argument::type('string'))
-            ->willReturn($reflectionPropertyMock->reveal())
-            ->shouldBeCalledTimes(5);
-        $this->readerMock->getPropertyAnnotation(
-            $reflectionPropertyMock->reveal(),
-            'Symfony\Component\Serializer\Annotation\Groups'
-        )->willReturn(null, null, null, $groupsMock->reveal(), $groupsMock->reveal())->shouldBeCalledTimes(5);
+        $attributeMetadataMock->getName()->willReturn($name)->shouldBeCalled();
+        $classMetadataMock->getReflectionClass()->willReturn($reflectionClassMock->reveal())->shouldBeCalled();
 
-        $attributeMetadataMock->isIdentifier()->willReturn(true, false, false, false, false)->shouldBeCalledTimes(5);
-        $attributeMetadataMock->isReadable()->willReturn(false, true, true, true)->shouldBeCalledTimes(4);
-        $groupsMock->getGroups()
-            ->willReturn(['company_input'], ['user_input', 'company_input'])
-            ->shouldBeCalledTimes(2);
+        $reflectionClassMock->hasProperty($name)->willReturn($options['property'])->shouldBeCalledTimes(1);
+        if ($options['property']) {
+            $reflectionClassMock->getProperty($name)
+                ->willReturn($reflectionPropertyMock->reveal())
+                ->shouldBeCalledTimes(1);
+            $this->readerMock->getPropertyAnnotation(
+                $reflectionPropertyMock->reveal(),
+                'Symfony\Component\Serializer\Annotation\Groups'
+            )->willReturn($groupsMock->reveal())->shouldBeCalledTimes(1);
 
-        $this->guesserMock->guess($attributeMetadataMock->reveal())->willReturn('bar')->shouldBeCalledTimes(1);
+            $attributeMetadataMock->isIdentifier()->willReturn($options['identifier'])->shouldBeCalledTimes(1);
+            if (!$options['identifier']) {
+                $attributeMetadataMock->isReadable()->willReturn($options['readable'])->shouldBeCalledTimes(1);
+                if ($options['readable']) {
+                    $groupsMock->getGroups()->willReturn($options['groups'])->shouldBeCalledTimes(1);
 
-        $this->requestMock->setRawModeData(['foo' => 'bar'])->shouldBeCalledTimes(1);
+                    if (in_array('user_input', $options['groups'])) {
+                        $this->guesserMock->guess($attributeMetadataMock->reveal())
+                            ->willReturn('bar')
+                            ->shouldBeCalledTimes(1);
+                    }
+                }
+            }
+        }
+
+        $this->requestMock->setRawModeData($options['value'])->shouldBeCalledTimes(1);
 
         $this->parser->parse($this->requestMock->reveal());
+    }
+
+    public function getDataProvider()
+    {
+        return [
+            [
+                'id', [
+                    'property' => true,
+                    'identifier' => true,
+                    'readable' => true,
+                    'groups' => ['user_input'],
+                    'value' => [],
+                ],
+            ],
+            [
+                'name', [
+                    'property' => true,
+                    'identifier' => false,
+                    'readable' => false,
+                    'groups' => ['user_input'],
+                    'value' => [],
+                ],
+            ],
+            [
+                'description', [
+                    'property' => true,
+                    'identifier' => false,
+                    'readable' => true,
+                    'groups' => [],
+                    'value' => [],
+                ],
+            ],
+            [
+                'foo', [
+                    'property' => true,
+                    'identifier' => false,
+                    'readable' => true,
+                    'groups' => ['company_input'],
+                    'value' => [],
+                ],
+            ],
+            [
+                'bar', [
+                    'property' => true,
+                    'identifier' => false,
+                    'readable' => true,
+                    'groups' => ['user_input', 'company_input'],
+                    'value' => ['bar' => 'bar'],
+                ],
+            ],
+            [
+                'hasNotifications', [
+                    'property' => false,
+                    'identifier' => false,
+                    'readable' => true,
+                    'groups' => ['user_input', 'company_input'],
+                    'value' => [],
+                ],
+            ],
+        ];
     }
 }
