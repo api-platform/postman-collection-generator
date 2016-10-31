@@ -43,8 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('description')->defaultNull()->end()
                 ->scalarNode('defaultLocale')->defaultValue('en_GB')->end()
                 ->scalarNode('authentication')->defaultNull()->end()
-            ->end()
-        ;
+            ->end();
 
         return $treeBuilder;
     }

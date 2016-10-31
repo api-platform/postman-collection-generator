@@ -80,8 +80,7 @@ If any of the options is missing, the command will ask for their values interact
 If you want to disable any user interaction, use <comment>--no-interaction</comment>,
 but don't forget to pass all required arguments.
 EOT
-            )
-        ;
+            );
     }
 
     /**
