@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the PostmanGeneratorBundle package.
+ * This file is part of the API Platform project.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Kévin Dunglas <dunglas@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -70,7 +70,7 @@ class PostmanCollectionBuildCommand extends Command
 
         $this
             ->setDescription('Build Postman collection')
-            ->setHelp(<<<EOT
+            ->setHelp(<<<'EOT'
 The <info>postman:collection:build</info> command helps you generate a Postman
 collection according to your project configuration:
 
@@ -80,8 +80,7 @@ If any of the options is missing, the command will ask for their values interact
 If you want to disable any user interaction, use <comment>--no-interaction</comment>,
 but don't forget to pass all required arguments.
 EOT
-            )
-        ;
+            );
     }
 
     /**

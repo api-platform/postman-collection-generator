@@ -1,9 +1,9 @@
 <?php
 
 /*
- * This file is part of the PostmanGeneratorBundle package.
+ * This file is part of the API Platform project.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Kévin Dunglas <dunglas@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -43,8 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('description')->defaultNull()->end()
                 ->scalarNode('defaultLocale')->defaultValue('en_GB')->end()
                 ->scalarNode('authentication')->defaultNull()->end()
-            ->end()
-        ;
+            ->end();
 
         return $treeBuilder;
     }
